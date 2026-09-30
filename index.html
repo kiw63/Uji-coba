@@ -1,0 +1,3720 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7efe4">
+<meta name="color-scheme" content="light">
+<title>ChronoVault — Timed Video Library</title>
+
+<style>
+:root{
+  --cream:#f7efe4;
+  --paper:#fffaf3;
+  --paper2:#f3e6d6;
+  --brown:#35271f;
+  --brown2:#60483a;
+  --coral:#d86b52;
+  --coral2:#ed8c70;
+  --gold:#c89b52;
+  --gold2:#e5bd73;
+  --red:#a84435;
+  --muted:#8b7769;
+  --line:rgba(80,55,40,.14);
+  --shadow:0 20px 55px rgba(83,56,40,.13);
+  --radius:26px;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 10% 5%,rgba(237,140,112,.16),transparent 28%),
+    radial-gradient(circle at 90% 15%,rgba(229,189,115,.16),transparent 25%),
+    linear-gradient(145deg,#fbf5ec,#f1e2d0);
+  color:var(--brown);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  overflow-x:hidden;
+}
+
+button,
+input,
+textarea{
+  font:inherit;
+}
+
+button{
+  border:0;
+  cursor:pointer;
+}
+
+::selection{
+  background:var(--coral);
+  color:white;
+}
+
+/* =========================
+   BACKGROUND
+========================= */
+
+.bg-orb{
+  position:fixed;
+  width:280px;
+  height:280px;
+  border-radius:50%;
+  filter:blur(70px);
+  opacity:.22;
+  pointer-events:none;
+  z-index:-1;
+}
+
+.orb1{
+  top:-100px;
+  left:-80px;
+  background:var(--coral2);
+}
+
+.orb2{
+  right:-120px;
+  bottom:10%;
+  background:var(--gold2);
+}
+
+.noise{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.025;
+  z-index:999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.container{
+  width:min(1180px,calc(100% - 32px));
+  margin:auto;
+}
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:100;
+  backdrop-filter:blur(18px);
+  background:rgba(247,239,228,.82);
+  border-bottom:1px solid var(--line);
+}
+
+.topbar-inner{
+  min-height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-weight:900;
+  letter-spacing:-.5px;
+}
+
+.brand-mark{
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  color:white;
+  background:linear-gradient(135deg,var(--coral),var(--gold));
+  box-shadow:0 10px 25px rgba(216,107,82,.25);
+}
+
+.brand small{
+  display:block;
+  font-size:10px;
+  color:var(--muted);
+  letter-spacing:1.5px;
+  margin-top:2px;
+}
+
+.top-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.btn{
+  min-height:44px;
+  padding:0 17px;
+  border-radius:15px;
+  font-weight:800;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  transition:.22s ease;
+  position:relative;
+  overflow:hidden;
+}
+
+.btn::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  transform:translateX(-110%);
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);
+  transition:.5s;
+}
+
+.btn:hover::after{
+  transform:translateX(110%);
+}
+
+.btn:hover{
+  transform:translateY(-2px);
+}
+
+.btn:active{
+  transform:translateY(0) scale(.98);
+}
+
+.btn-main{
+  color:white;
+  background:linear-gradient(135deg,var(--coral),var(--coral2));
+  box-shadow:0 12px 25px rgba(216,107,82,.22);
+}
+
+.btn-soft{
+  color:var(--brown);
+  background:rgba(255,250,243,.78);
+  border:1px solid var(--line);
+}
+
+.btn-danger{
+  color:white;
+  background:linear-gradient(135deg,#a84435,#c55f4e);
+}
+
+.btn-small{
+  min-height:37px;
+  padding:0 12px;
+  border-radius:12px;
+  font-size:13px;
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero{
+  padding:65px 0 30px;
+}
+
+.hero-grid{
+  display:grid;
+  grid-template-columns:1.35fr .65fr;
+  gap:25px;
+  align-items:stretch;
+}
+
+.hero-card{
+  border:1px solid var(--line);
+  border-radius:34px;
+  padding:42px;
+  background:
+    linear-gradient(135deg,rgba(255,250,243,.96),rgba(244,228,209,.9));
+  box-shadow:var(--shadow);
+  position:relative;
+  overflow:hidden;
+}
+
+.hero-card::before{
+  content:"";
+  position:absolute;
+  width:250px;
+  height:250px;
+  border-radius:50%;
+  right:-90px;
+  top:-110px;
+  background:rgba(216,107,82,.13);
+}
+
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(216,107,82,.1);
+  color:var(--red);
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:1.3px;
+  text-transform:uppercase;
+}
+
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--coral);
+  box-shadow:0 0 0 5px rgba(216,107,82,.12);
+  animation:pulse 1.8s infinite;
+}
+
+.hero h1{
+  font-size:clamp(38px,6vw,72px);
+  line-height:.96;
+  letter-spacing:-4px;
+  margin:22px 0 18px;
+  max-width:750px;
+}
+
+.hero h1 span{
+  color:var(--coral);
+}
+
+.hero p{
+  max-width:650px;
+  color:var(--brown2);
+  line-height:1.75;
+  margin:0 0 25px;
+}
+
+.hero-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.security-card{
+  border-radius:34px;
+  padding:28px;
+  background:var(--brown);
+  color:#fff8ef;
+  box-shadow:var(--shadow);
+  position:relative;
+  overflow:hidden;
+}
+
+.security-card::after{
+  content:"";
+  position:absolute;
+  width:190px;
+  height:190px;
+  border-radius:50%;
+  right:-70px;
+  bottom:-70px;
+  background:rgba(229,189,115,.14);
+}
+
+.security-title{
+  font-weight:900;
+  font-size:20px;
+  margin-bottom:20px;
+}
+
+.security-list{
+  display:grid;
+  gap:13px;
+}
+
+.security-item{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+  font-size:13px;
+  line-height:1.5;
+  color:#eadbca;
+}
+
+.check{
+  flex:0 0 auto;
+  width:24px;
+  height:24px;
+  border-radius:8px;
+  display:grid;
+  place-items:center;
+  background:rgba(229,189,115,.16);
+  color:#e5bd73;
+  font-weight:900;
+}
+
+/* =========================
+   STATS
+========================= */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:13px;
+  margin:20px 0 30px;
+}
+
+.stat{
+  padding:20px;
+  border:1px solid var(--line);
+  border-radius:21px;
+  background:rgba(255,250,243,.75);
+  box-shadow:0 10px 30px rgba(83,56,40,.07);
+}
+
+.stat-label{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+
+.stat-value{
+  margin-top:8px;
+  font-size:26px;
+  font-weight:950;
+  letter-spacing:-1px;
+}
+
+/* =========================
+   CONTROL BAR
+========================= */
+
+.section-head{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:15px;
+  margin:42px 0 17px;
+}
+
+.section-head h2{
+  margin:0;
+  font-size:27px;
+  letter-spacing:-1px;
+}
+
+.section-head p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-bottom:18px;
+}
+
+.search{
+  flex:1;
+  min-width:220px;
+  position:relative;
+}
+
+.search input{
+  width:100%;
+  height:46px;
+  padding:0 15px;
+  border-radius:15px;
+  border:1px solid var(--line);
+  outline:none;
+  color:var(--brown);
+  background:rgba(255,250,243,.85);
+}
+
+.search input:focus{
+  border-color:rgba(216,107,82,.6);
+  box-shadow:0 0 0 4px rgba(216,107,82,.08);
+}
+
+/* =========================
+   CLOCK STATUS
+========================= */
+
+.clock-status{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:11px 14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:rgba(255,250,243,.8);
+  font-size:12px;
+  font-weight:800;
+  color:var(--brown2);
+}
+
+.clock-indicator{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#c89b52;
+}
+
+.clock-status.safe .clock-indicator{
+  background:#a77b3b;
+  box-shadow:0 0 0 5px rgba(200,155,82,.12);
+}
+
+.clock-status.warning{
+  border-color:rgba(168,68,53,.3);
+  color:var(--red);
+}
+
+.clock-status.warning .clock-indicator{
+  background:var(--red);
+  box-shadow:0 0 0 5px rgba(168,68,53,.12);
+}
+
+/* =========================
+   VIDEO GRID
+========================= */
+
+.video-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:17px;
+  padding-bottom:50px;
+}
+
+.video-card{
+  border:1px solid var(--line);
+  border-radius:24px;
+  overflow:hidden;
+  background:rgba(255,250,243,.9);
+  box-shadow:0 13px 35px rgba(83,56,40,.09);
+  transition:.25s ease;
+  animation:cardIn .5s ease both;
+}
+
+.video-card:hover{
+  transform:translateY(-5px);
+  box-shadow:0 20px 45px rgba(83,56,40,.14);
+}
+
+.thumb{
+  height:180px;
+  background:
+    radial-gradient(circle at 30% 20%,rgba(237,140,112,.35),transparent 30%),
+    linear-gradient(135deg,#ead7c3,#d4b99f);
+  display:grid;
+  place-items:center;
+  position:relative;
+  overflow:hidden;
+}
+
+.thumb::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,.23),transparent);
+  transform:translateX(-120%);
+  animation:shine 4s infinite;
+}
+
+.play-icon{
+  width:58px;
+  height:58px;
+  border-radius:20px;
+  display:grid;
+  place-items:center;
+  background:rgba(255,250,243,.83);
+  box-shadow:0 12px 30px rgba(60,40,30,.15);
+  font-size:23px;
+  padding-left:3px;
+  z-index:2;
+}
+
+.lock-icon{
+  position:absolute;
+  top:12px;
+  right:12px;
+  padding:8px 10px;
+  border-radius:11px;
+  background:rgba(53,39,31,.78);
+  color:#fff5e8;
+  font-size:11px;
+  font-weight:900;
+  z-index:3;
+}
+
+.card-body{
+  padding:19px;
+}
+
+.card-title{
+  margin:0;
+  font-size:18px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.card-description{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.55;
+  min-height:38px;
+  margin:8px 0 13px;
+}
+
+.meta{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size:11px;
+  color:var(--muted);
+  margin-bottom:13px;
+}
+
+.countdown{
+  border-radius:15px;
+  padding:13px;
+  background:rgba(216,107,82,.07);
+  border:1px solid rgba(216,107,82,.13);
+  margin-bottom:12px;
+}
+
+.countdown-label{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  font-weight:900;
+  color:var(--muted);
+}
+
+.countdown-value{
+  margin-top:4px;
+  font-size:18px;
+  font-weight:950;
+  color:var(--coral);
+  font-variant-numeric:tabular-nums;
+}
+
+.unlocked{
+  background:rgba(200,155,82,.12);
+  border-color:rgba(200,155,82,.25);
+}
+
+.unlocked .countdown-value{
+  color:#916b2d;
+}
+
+.card-actions{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+}
+
+/* =========================
+   EMPTY
+========================= */
+
+.empty{
+  grid-column:1/-1;
+  padding:65px 25px;
+  border:1px dashed rgba(80,55,40,.22);
+  border-radius:25px;
+  text-align:center;
+  background:rgba(255,250,243,.52);
+}
+
+.empty-icon{
+  font-size:42px;
+  margin-bottom:10px;
+}
+
+.empty h3{
+  margin:0 0 6px;
+}
+
+.empty p{
+  color:var(--muted);
+  margin:0;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:500;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(53,39,31,.48);
+  backdrop-filter:blur(13px);
+}
+
+.modal.show{
+  display:flex;
+  animation:fadeIn .2s ease;
+}
+
+.modal-box{
+  width:min(650px,100%);
+  max-height:92vh;
+  overflow:auto;
+  border-radius:29px;
+  background:var(--paper);
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:0 30px 90px rgba(30,20,15,.28);
+  animation:modalIn .3s ease;
+}
+
+.modal-head{
+  padding:23px 24px 15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  border-bottom:1px solid var(--line);
+}
+
+.modal-head h3{
+  margin:0;
+  font-size:21px;
+}
+
+.close{
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  background:var(--paper2);
+  color:var(--brown);
+  font-size:19px;
+}
+
+.modal-content{
+  padding:24px;
+}
+
+.form-grid{
+  display:grid;
+  gap:15px;
+}
+
+.field{
+  display:grid;
+  gap:7px;
+}
+
+.field label{
+  font-size:12px;
+  font-weight:900;
+  color:var(--brown2);
+}
+
+.field input,
+.field textarea{
+  width:100%;
+  border:1px solid var(--line);
+  outline:none;
+  background:#fffdf9;
+  color:var(--brown);
+  border-radius:15px;
+  padding:13px 14px;
+}
+
+.field textarea{
+  resize:vertical;
+  min-height:90px;
+}
+
+.field input:focus,
+.field textarea:focus{
+  border-color:rgba(216,107,82,.55);
+  box-shadow:0 0 0 4px rgba(216,107,82,.08);
+}
+
+.file-drop{
+  border:1.5px dashed rgba(216,107,82,.42);
+  background:rgba(216,107,82,.05);
+  border-radius:18px;
+  padding:23px;
+  text-align:center;
+  transition:.2s;
+}
+
+.file-drop.drag{
+  background:rgba(216,107,82,.12);
+  transform:scale(1.01);
+}
+
+.file-drop strong{
+  display:block;
+  margin-bottom:5px;
+}
+
+.file-drop span{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.file-name{
+  margin-top:9px;
+  font-size:12px;
+  color:var(--coral);
+  font-weight:800;
+  word-break:break-all;
+}
+
+.modal-footer{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:18px;
+}
+
+/* =========================
+   VIEWER
+========================= */
+
+.viewer-modal .modal-box{
+  width:min(1000px,100%);
+  background:#2f241e;
+  color:#fff8ef;
+}
+
+.viewer-modal .modal-head{
+  border-color:rgba(255,255,255,.1);
+}
+
+.viewer-title{
+  min-width:0;
+}
+
+.viewer-title h3{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.viewer-close{
+  background:rgba(255,255,255,.1);
+  color:white;
+}
+
+.video-stage{
+  padding:18px;
+}
+
+.video-stage video{
+  display:block;
+  width:100%;
+  max-height:65vh;
+  border-radius:20px;
+  background:#18120f;
+}
+
+.lock-screen{
+  min-height:430px;
+  border-radius:20px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:35px;
+  background:
+    radial-gradient(circle at 50% 30%,rgba(229,189,115,.12),transparent 35%),
+    #241b16;
+}
+
+.big-lock{
+  width:85px;
+  height:85px;
+  border-radius:28px;
+  display:grid;
+  place-items:center;
+  font-size:35px;
+  background:rgba(229,189,115,.12);
+  margin-bottom:20px;
+}
+
+.lock-screen h2{
+  margin:0 0 8px;
+}
+
+.viewer-countdown{
+  font-size:38px;
+  font-weight:950;
+  letter-spacing:-1px;
+  color:#e5bd73;
+  font-variant-numeric:tabular-nums;
+  margin:13px 0;
+}
+
+.viewer-note{
+  color:#cbbcaf;
+  font-size:12px;
+  max-width:470px;
+  line-height:1.6;
+}
+
+.viewer-info{
+  padding:0 18px 20px;
+  color:#cbbcaf;
+  font-size:12px;
+}
+
+/* =========================
+   TOAST
+========================= */
+
+.toast-wrap{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  z-index:1000;
+  width:min(380px,calc(100% - 36px));
+  display:grid;
+  gap:9px;
+}
+
+.toast{
+  border-radius:17px;
+  padding:14px 15px;
+  background:rgba(53,39,31,.94);
+  color:#fff8ef;
+  box-shadow:0 18px 45px rgba(30,20,15,.25);
+  border:1px solid rgba(255,255,255,.1);
+  animation:toastIn .3s ease;
+  font-size:13px;
+  line-height:1.45;
+}
+
+.toast strong{
+  display:block;
+  margin-bottom:2px;
+}
+
+.toast.warning{
+  background:#714034;
+}
+
+.toast.success{
+  background:#65502f;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer{
+  border-top:1px solid var(--line);
+  padding:25px 0 40px;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.6;
+}
+
+.footer-inner{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+}
+
+/* =========================
+   LOADING
+========================= */
+
+.loading{
+  position:fixed;
+  inset:0;
+  z-index:2000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--cream);
+  transition:.35s;
+}
+
+.loading.hide{
+  opacity:0;
+  pointer-events:none;
+}
+
+.loader{
+  text-align:center;
+}
+
+.loader-ring{
+  width:58px;
+  height:58px;
+  border:5px solid rgba(216,107,82,.15);
+  border-top-color:var(--coral);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+  margin:auto auto 15px;
+}
+
+.loader strong{
+  font-size:15px;
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+@keyframes pulse{
+  50%{transform:scale(.7);opacity:.55}
+}
+
+@keyframes shine{
+  0%,45%{transform:translateX(-120%)}
+  65%,100%{transform:translateX(120%)}
+}
+
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+@keyframes modalIn{
+  from{opacity:0;transform:translateY(18px) scale(.97)}
+  to{opacity:1;transform:none}
+}
+
+@keyframes toastIn{
+  from{opacity:0;transform:translateY(15px)}
+  to{opacity:1;transform:none}
+}
+
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:none}
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:900px){
+  .hero-grid{
+    grid-template-columns:1fr;
+  }
+
+  .video-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:650px){
+  .container{
+    width:min(100% - 20px,1180px);
+  }
+
+  .topbar-inner{
+    min-height:62px;
+  }
+
+  .brand small{
+    display:none;
+  }
+
+  .top-actions .btn-soft{
+    display:none;
+  }
+
+  .hero{
+    padding-top:28px;
+  }
+
+  .hero-card{
+    padding:27px;
+    border-radius:27px;
+  }
+
+  .hero h1{
+    font-size:43px;
+    letter-spacing:-2.5px;
+  }
+
+  .security-card{
+    border-radius:27px;
+  }
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .video-grid{
+    grid-template-columns:1fr;
+  }
+
+  .section-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .footer-inner{
+    flex-direction:column;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg-orb orb1"></div>
+<div class="bg-orb orb2"></div>
+<div class="noise"></div>
+
+<!-- LOADING -->
+<div class="loading" id="loading">
+  <div class="loader">
+    <div class="loader-ring"></div>
+    <strong>Mengamankan library...</strong>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="topbar">
+  <div class="container topbar-inner">
+
+    <div class="brand">
+      <div class="brand-mark">⏱</div>
+      <div>
+        ChronoVault
+        <small>TIMED VIDEO LIBRARY</small>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button class="btn btn-soft btn-small" id="refreshBtn">
+        ↻ Refresh
+      </button>
+
+      <button class="btn btn-main" id="uploadBtn">
+        ＋ Upload Video
+      </button>
+    </div>
+
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- HERO -->
+  <section class="hero">
+
+    <div class="hero-grid">
+
+      <div class="hero-card">
+
+        <div class="eyebrow">
+          <span class="dot"></span>
+          Local Secure Storage
+        </div>
+
+        <h1>
+          Video yang<br>
+          terbuka <span>tepat waktu.</span>
+        </h1>
+
+        <p>
+          Sistem timed-video berbasis IndexedDB. Waktu buka disimpan
+          sebagai timestamp absolut, bukan sekadar angka countdown,
+          sehingga refresh halaman tidak mereset timer.
+        </p>
+
+        <div class="hero-actions">
+          <button class="btn btn-main" id="heroUploadBtn">
+            Upload Video
+          </button>
+
+          <button class="btn btn-soft" id="storageBtn">
+            Periksa Storage
+          </button>
+        </div>
+
+      </div>
+
+      <div class="security-card">
+
+        <div class="security-title">
+          Sistem Proteksi
+        </div>
+
+        <div class="security-list">
+
+          <div class="security-item">
+            <div class="check">✓</div>
+            <div>
+              <b>IndexedDB</b><br>
+              Video dan metadata disimpan secara lokal.
+            </div>
+          </div>
+
+          <div class="security-item">
+            <div class="check">✓</div>
+            <div>
+              <b>Absolute Timestamp</b><br>
+              Countdown dihitung ulang dari waktu unlock asli.
+            </div>
+          </div>
+
+          <div class="security-item">
+            <div class="check">✓</div>
+            <div>
+              <b>Clock Guard</b><br>
+              Perubahan jam mundur terdeteksi dan timer ditahan.
+            </div>
+          </div>
+
+          <div class="security-item">
+            <div class="check">✓</div>
+            <div>
+              <b>Cross-Tab Sync</b><br>
+              Perubahan library disinkronkan antar-tab.
+            </div>
+          </div>
+
+          <div class="security-item">
+            <div class="check">✓</div>
+            <div>
+              <b>Lifecycle Recovery</b><br>
+              Timer disinkronkan ulang saat tab kembali aktif.
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- STATS -->
+  <section class="stats">
+
+    <div class="stat">
+      <div class="stat-label">Total Video</div>
+      <div class="stat-value" id="statTotal">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">Locked</div>
+      <div class="stat-value" id="statLocked">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">Unlocked</div>
+      <div class="stat-value" id="statUnlocked">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">Storage</div>
+      <div class="stat-value" id="statStorage">—</div>
+    </div>
+
+  </section>
+
+  <!-- LIBRARY -->
+  <section>
+
+    <div class="section-head">
+
+      <div>
+        <h2>Video Library</h2>
+        <p>Setiap video memiliki waktu unlock yang tersimpan permanen.</p>
+      </div>
+
+      <div class="clock-status safe" id="clockStatus">
+        <span class="clock-indicator"></span>
+        <span id="clockStatusText">Waktu normal</span>
+      </div>
+
+    </div>
+
+    <div class="toolbar">
+
+      <div class="search">
+        <input
+          type="search"
+          id="searchInput"
+          placeholder="Cari video..."
+          autocomplete="off"
+        >
+      </div>
+
+      <button class="btn btn-soft btn-small" id="sortBtn">
+        Terbaru ↓
+      </button>
+
+      <button class="btn btn-soft btn-small" id="requestPersistBtn">
+        Lindungi Storage
+      </button>
+
+    </div>
+
+    <div class="video-grid" id="videoGrid"></div>
+
+  </section>
+
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <div>
+      ChronoVault — Timed Video Library
+    </div>
+
+    <div>
+      Data tersimpan pada browser/origin ini menggunakan IndexedDB.
+    </div>
+  </div>
+</footer>
+
+
+<!-- =========================
+     UPLOAD MODAL
+========================= -->
+
+<div class="modal" id="uploadModal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+      <h3>Upload Video Terjadwal</h3>
+      <button class="close" id="uploadClose">×</button>
+    </div>
+
+    <div class="modal-content">
+
+      <div class="form-grid">
+
+        <div class="field">
+          <label>File Video</label>
+
+          <div class="file-drop" id="dropZone">
+
+            <input
+              type="file"
+              id="videoFile"
+              accept="video/*"
+              hidden
+            >
+
+            <button
+              type="button"
+              class="btn btn-soft"
+              id="chooseFileBtn"
+            >
+              Pilih Video
+            </button>
+
+            <strong style="margin-top:12px">
+              atau drag & drop file di sini
+            </strong>
+
+            <span>
+              File disimpan langsung ke IndexedDB browser.
+            </span>
+
+            <div class="file-name" id="fileName">
+              Belum ada file
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="field">
+          <label for="videoTitle">Judul Video</label>
+          <input
+            id="videoTitle"
+            maxlength="120"
+            placeholder="Contoh: Film Episode 01"
+          >
+        </div>
+
+        <div class="field">
+          <label for="videoDescription">Deskripsi</label>
+          <textarea
+            id="videoDescription"
+            maxlength="500"
+            placeholder="Deskripsi singkat..."
+          ></textarea>
+        </div>
+
+        <div class="field">
+          <label for="unlockTime">
+            Waktu Video Dibuka
+          </label>
+
+          <input
+            type="datetime-local"
+            id="unlockTime"
+            step="1"
+          >
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+
+        <button class="btn btn-soft" id="cancelUpload">
+          Batal
+        </button>
+
+        <button class="btn btn-main" id="saveVideoBtn">
+          Simpan & Kunci
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     VIEWER MODAL
+========================= -->
+
+<div class="modal viewer-modal" id="viewerModal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <div class="viewer-title">
+        <h3 id="viewerTitle">Video</h3>
+      </div>
+
+      <button
+        class="close viewer-close"
+        id="viewerClose"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div class="video-stage" id="videoStage">
+
+      <div class="lock-screen" id="lockScreen">
+
+        <div class="big-lock">🔒</div>
+
+        <h2>Video masih terkunci</h2>
+
+        <div class="viewer-countdown" id="viewerCountdown">
+          00:00:00
+        </div>
+
+        <div class="viewer-note">
+          Halaman boleh di-refresh. Waktu unlock disimpan sebagai
+          timestamp dan akan dihitung ulang ketika halaman kembali aktif.
+        </div>
+
+      </div>
+
+      <video
+        id="viewerVideo"
+        controls
+        playsinline
+        preload="none"
+        style="display:none"
+      ></video>
+
+    </div>
+
+    <div class="viewer-info" id="viewerInfo">
+      Menunggu waktu unlock...
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+
+<script>
+"use strict";
+
+/* =========================================================
+   CHRONOVAULT
+   Pure index.html
+   IndexedDB + Clock Guard + Cross Tab Sync
+========================================================= */
+
+const APP = {
+  DB_NAME: "chronovault_timed_video_v2",
+  DB_VERSION: 2,
+  VIDEO_STORE: "videos",
+  META_STORE: "meta",
+  CLOCK_KEY: "clockState",
+  MAX_TITLE: 120,
+  MAX_DESCRIPTION: 500,
+  CLOCK_TOLERANCE: 1500,
+  CLOCK_SAVE_INTERVAL: 3000,
+  TICK_INTERVAL: 500
+};
+
+let db = null;
+let videos = [];
+let currentViewerId = null;
+let currentViewerObjectURL = null;
+let clockState = null;
+let clockSaveTimer = null;
+let tickTimer = null;
+let sortNewestFirst = true;
+
+let channel = null;
+
+const $ = id => document.getElementById(id);
+
+
+/* =========================================================
+   UTILITIES
+========================================================= */
+
+function escapeHTML(value){
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function formatBytes(bytes){
+  if(!Number.isFinite(bytes) || bytes <= 0) return "0 B";
+
+  const units = ["B","KB","MB","GB","TB"];
+  const i = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1
+  );
+
+  return `${(bytes / Math.pow(1024,i)).toFixed(i ? 1 : 0)} ${units[i]}`;
+}
+
+function formatDate(timestamp){
+  const d = new Date(timestamp);
+
+  return new Intl.DateTimeFormat("id-ID",{
+    dateStyle:"medium",
+    timeStyle:"medium"
+  }).format(d);
+}
+
+function formatShortDate(timestamp){
+  const d = new Date(timestamp);
+
+  return new Intl.DateTimeFormat("id-ID",{
+    dateStyle:"medium",
+    timeStyle:"short"
+  }).format(d);
+}
+
+function formatCountdown(ms){
+
+  if(ms <= 0){
+    return "TERBUKA";
+  }
+
+  let total = Math.floor(ms / 1000);
+
+  const days = Math.floor(total / 86400);
+  total %= 86400;
+
+  const hours = Math.floor(total / 3600);
+  total %= 3600;
+
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+
+  if(days > 0){
+    return `${days}h ${String(hours).padStart(2,"0")}j ${String(minutes).padStart(2,"0")}m`;
+  }
+
+  return [
+    String(hours).padStart(2,"0"),
+    String(minutes).padStart(2,"0"),
+    String(seconds).padStart(2,"0")
+  ].join(":");
+}
+
+function isVideoUnlocked(video){
+  return getEffectiveNow() >= video.unlockAt;
+}
+
+function makeId(){
+  if(crypto.randomUUID){
+    return crypto.randomUUID();
+  }
+
+  return Date.now().toString(36) +
+    Math.random().toString(36).slice(2);
+}
+
+function toast(title,message,type=""){
+  const wrap = $("toastWrap");
+
+  const item = document.createElement("div");
+
+  item.className = `toast ${type}`;
+
+  item.innerHTML = `
+    <strong>${escapeHTML(title)}</strong>
+    <span>${escapeHTML(message)}</span>
+  `;
+
+  wrap.appendChild(item);
+
+  setTimeout(()=>{
+    item.style.opacity = "0";
+    item.style.transform = "translateY(10px)";
+    item.style.transition = ".25s";
+
+    setTimeout(()=>item.remove(),250);
+
+  },4500);
+}
+
+
+/* =========================================================
+   INDEXED DB
+========================================================= */
+
+function openDatabase(){
+
+  return new Promise((resolve,reject)=>{
+
+    const request =
+      indexedDB.open(APP.DB_NAME,APP.DB_VERSION);
+
+    request.onupgradeneeded = event => {
+
+      const database = event.target.result;
+
+      if(!database.objectStoreNames.contains(APP.VIDEO_STORE)){
+
+        const store =
+          database.createObjectStore(
+            APP.VIDEO_STORE,
+            {keyPath:"id"}
+          );
+
+        store.createIndex(
+          "createdAt",
+          "createdAt",
+          {unique:false}
+        );
+
+        store.createIndex(
+          "unlockAt",
+          "unlockAt",
+          {unique:false}
+        );
+      }
+
+      if(!database.objectStoreNames.contains(APP.META_STORE)){
+
+        database.createObjectStore(
+          APP.META_STORE,
+          {keyPath:"key"}
+        );
+      }
+
+    };
+
+    request.onsuccess = ()=>{
+
+      db = request.result;
+
+      db.onversionchange = ()=>{
+        db.close();
+      };
+
+      resolve(db);
+    };
+
+    request.onerror = ()=>{
+      reject(request.error);
+    };
+
+  });
+
+}
+
+
+function dbGet(storeName,key){
+
+  return new Promise((resolve,reject)=>{
+
+    const tx = db.transaction(
+      storeName,
+      "readonly"
+    );
+
+    const store = tx.objectStore(storeName);
+
+    const req = store.get(key);
+
+    req.onsuccess = ()=>resolve(req.result);
+
+    req.onerror = ()=>reject(req.error);
+
+  });
+}
+
+
+function dbPut(storeName,value){
+
+  return new Promise((resolve,reject)=>{
+
+    const tx = db.transaction(
+      storeName,
+      "readwrite"
+    );
+
+    const store = tx.objectStore(storeName);
+
+    const req = store.put(value);
+
+    req.onsuccess = ()=>resolve();
+
+    req.onerror = ()=>reject(req.error);
+
+  });
+}
+
+
+function dbDelete(storeName,key){
+
+  return new Promise((resolve,reject)=>{
+
+    const tx = db.transaction(
+      storeName,
+      "readwrite"
+    );
+
+    const req =
+      tx.objectStore(storeName).delete(key);
+
+    req.onsuccess = ()=>resolve();
+
+    req.onerror = ()=>reject(req.error);
+
+  });
+}
+
+
+function dbGetAll(storeName){
+
+  return new Promise((resolve,reject)=>{
+
+    const tx =
+      db.transaction(storeName,"readonly");
+
+    const req =
+      tx.objectStore(storeName).getAll();
+
+    req.onsuccess = ()=>resolve(req.result || []);
+
+    req.onerror = ()=>reject(req.error);
+
+  });
+}
+
+
+/* =========================================================
+   CLOCK GUARD
+========================================================= */
+
+async function initializeClock(){
+
+  const saved =
+    await dbGet(APP.META_STORE,APP.CLOCK_KEY);
+
+  const actualNow = Date.now();
+
+  if(saved){
+
+    const previous =
+      Number(saved.lastWallClock) || actualNow;
+
+    const maximum =
+      Number(saved.maxObservedWallClock) ||
+      previous;
+
+    clockState = {
+      lastWallClock: previous,
+      maxObservedWallClock:
+        Math.max(maximum,previous),
+      rollbackDetected:false,
+      initializedAt:
+        saved.initializedAt || actualNow
+    };
+
+    if(
+      actualNow <
+      clockState.maxObservedWallClock -
+      APP.CLOCK_TOLERANCE
+    ){
+
+      clockState.rollbackDetected = true;
+    }
+
+  }else{
+
+    clockState = {
+      lastWallClock:actualNow,
+      maxObservedWallClock:actualNow,
+      rollbackDetected:false,
+      initializedAt:actualNow
+    };
+
+  }
+
+  await saveClockState();
+
+  updateClockUI();
+}
+
+
+async function saveClockState(){
+
+  if(!clockState || !db) return;
+
+  try{
+
+    await dbPut(
+      APP.META_STORE,
+      {
+        key:APP.CLOCK_KEY,
+        ...clockState
+      }
+    );
+
+  }catch(error){
+
+    console.warn(
+      "Clock state gagal disimpan:",
+      error
+    );
+
+  }
+
+}
+
+
+function getEffectiveNow(){
+
+  if(!clockState){
+
+    return Date.now();
+  }
+
+  const actualNow = Date.now();
+
+  if(
+    actualNow <
+    clockState.maxObservedWallClock -
+    APP.CLOCK_TOLERANCE
+  ){
+
+    clockState.rollbackDetected = true;
+
+    /*
+      Jangan biarkan jam mundur membuat
+      countdown mundur/reset.
+    */
+    return clockState.maxObservedWallClock;
+  }
+
+  /*
+    Jika jam bergerak maju, nilai baru dicatat.
+    Browser-only tidak bisa membuktikan apakah
+    perubahan maju tersebut asli atau manipulasi.
+  */
+  if(
+    actualNow >
+    clockState.maxObservedWallClock
+  ){
+
+    clockState.maxObservedWallClock =
+      actualNow;
+
+    clockState.rollbackDetected = false;
+  }
+
+  clockState.lastWallClock = actualNow;
+
+  return Math.max(
+    actualNow,
+    clockState.maxObservedWallClock
+  );
+}
+
+
+function updateClockGuard(){
+
+  if(!clockState) return;
+
+  const actualNow = Date.now();
+
+  if(
+    actualNow <
+    clockState.maxObservedWallClock -
+    APP.CLOCK_TOLERANCE
+  ){
+
+    if(!clockState.rollbackDetected){
+
+      clockState.rollbackDetected = true;
+
+      toast(
+        "Perubahan waktu terdeteksi",
+        "Jam perangkat bergerak mundur. Countdown ditahan agar tidak ikut mundur.",
+        "warning"
+      );
+    }
+
+  }else{
+
+    if(clockState.rollbackDetected){
+
+      if(
+        actualNow >=
+        clockState.maxObservedWallClock
+      ){
+
+        clockState.rollbackDetected = false;
+
+        toast(
+          "Waktu kembali normal",
+          "Countdown kembali disinkronkan."
+        );
+      }
+
+    }
+
+    if(
+      actualNow >
+      clockState.maxObservedWallClock
+    ){
+
+      clockState.maxObservedWallClock =
+        actualNow;
+    }
+  }
+
+  clockState.lastWallClock = actualNow;
+
+  updateClockUI();
+}
+
+
+function updateClockUI(){
+
+  const status = $("clockStatus");
+  const text = $("clockStatusText");
+
+  if(!status || !text) return;
+
+  if(
+    clockState &&
+    clockState.rollbackDetected
+  ){
+
+    status.classList.remove("safe");
+    status.classList.add("warning");
+
+    text.textContent =
+      "Perubahan jam terdeteksi";
+
+  }else{
+
+    status.classList.remove("warning");
+    status.classList.add("safe");
+
+    text.textContent =
+      "Waktu normal";
+  }
+
+}
+
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+async function updateStorageStats(){
+
+  try{
+
+    if(!navigator.storage ||
+       !navigator.storage.estimate){
+
+      $("statStorage").textContent = "—";
+
+      return;
+    }
+
+    const estimate =
+      await navigator.storage.estimate();
+
+    const usage =
+      estimate.usage || 0;
+
+    const quota =
+      estimate.quota || 0;
+
+    $("statStorage").textContent =
+      formatBytes(usage);
+
+    $("statStorage").title =
+      `Digunakan ${formatBytes(usage)} dari ${formatBytes(quota)}`;
+
+  }catch(error){
+
+    $("statStorage").textContent = "—";
+  }
+
+}
+
+
+async function requestPersistentStorage(){
+
+  if(
+    !navigator.storage ||
+    !navigator.storage.persist
+  ){
+
+    toast(
+      "Tidak tersedia",
+      "Browser ini tidak menyediakan Persistent Storage API.",
+      "warning"
+    );
+
+    return;
+  }
+
+  try{
+
+    const already =
+      await navigator.storage.persisted();
+
+    if(already){
+
+      toast(
+        "Storage sudah dilindungi",
+        "Browser sudah memberikan persistent storage.",
+        "success"
+      );
+
+      return;
+    }
+
+    const result =
+      await navigator.storage.persist();
+
+    if(result){
+
+      toast(
+        "Storage dilindungi",
+        "Browser memberikan persistent storage untuk origin ini.",
+        "success"
+      );
+
+    }else{
+
+      toast(
+        "Permintaan ditolak",
+        "Browser tidak menjamin persistent storage pada origin ini.",
+        "warning"
+      );
+    }
+
+  }catch(error){
+
+    toast(
+      "Storage",
+      "Browser tidak mengizinkan persistent storage.",
+      "warning"
+    );
+
+  }
+}
+
+
+async function checkQuotaBeforeSave(file){
+
+  if(
+    !navigator.storage ||
+    !navigator.storage.estimate
+  ){
+
+    return true;
+  }
+
+  try{
+
+    const estimate =
+      await navigator.storage.estimate();
+
+    const usage =
+      Number(estimate.usage || 0);
+
+    const quota =
+      Number(estimate.quota || 0);
+
+    if(!quota) return true;
+
+    const free =
+      quota - usage;
+
+    /*
+      Safety margin 10 MB.
+    */
+    const required =
+      file.size + (10 * 1024 * 1024);
+
+    if(required > free){
+
+      toast(
+        "Storage tidak cukup",
+        `Video ${formatBytes(file.size)} membutuhkan ruang tambahan. Ruang bebas terdeteksi sekitar ${formatBytes(free)}.`,
+        "warning"
+      );
+
+      return false;
+    }
+
+    return true;
+
+  }catch(error){
+
+    return true;
+  }
+}
+
+
+/* =========================================================
+   LOAD LIBRARY
+========================================================= */
+
+async function loadLibrary(){
+
+  videos =
+    await dbGetAll(APP.VIDEO_STORE);
+
+  videos.sort((a,b)=>{
+
+    return sortNewestFirst
+      ? b.createdAt - a.createdAt
+      : a.createdAt - b.createdAt;
+
+  });
+
+  renderLibrary();
+  updateStats();
+  updateStorageStats();
+
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+function updateStats(){
+
+  const total = videos.length;
+
+  let unlocked = 0;
+
+  for(const video of videos){
+
+    if(
+      getEffectiveNow() >=
+      video.unlockAt
+    ){
+
+      unlocked++;
+    }
+  }
+
+  $("statTotal").textContent = total;
+
+  $("statUnlocked").textContent = unlocked;
+
+  $("statLocked").textContent =
+    total - unlocked;
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function renderLibrary(){
+
+  const grid = $("videoGrid");
+
+  const query =
+    $("searchInput").value
+      .trim()
+      .toLowerCase();
+
+  const filtered =
+    videos.filter(video=>{
+
+      return (
+        video.title.toLowerCase().includes(query) ||
+        (video.description || "")
+          .toLowerCase()
+          .includes(query) ||
+        video.fileName.toLowerCase().includes(query)
+      );
+
+    });
+
+  if(filtered.length === 0){
+
+    grid.innerHTML = `
+      <div class="empty">
+
+        <div class="empty-icon">🎬</div>
+
+        <h3>
+          ${videos.length
+            ? "Video tidak ditemukan"
+            : "Library masih kosong"}
+        </h3>
+
+        <p>
+          ${
+            videos.length
+            ? "Coba gunakan kata pencarian lain."
+            : "Upload video pertama untuk membuat timed video."
+          }
+        </p>
+
+      </div>
+    `;
+
+    return;
+  }
+
+  grid.innerHTML =
+    filtered.map((video,index)=>
+      createVideoCard(video,index)
+    ).join("");
+
+}
+
+
+function createVideoCard(video,index){
+
+  const now =
+    getEffectiveNow();
+
+  const unlocked =
+    now >= video.unlockAt;
+
+  const remaining =
+    Math.max(
+      0,
+      video.unlockAt - now
+    );
+
+  return `
+    <article
+      class="video-card"
+      data-id="${escapeHTML(video.id)}"
+      style="animation-delay:${Math.min(index * 35,350)}ms"
+    >
+
+      <div class="thumb">
+
+        <div class="play-icon">
+          ${unlocked ? "▶" : "🔒"}
+        </div>
+
+        <div class="lock-icon">
+          ${unlocked ? "OPEN" : "LOCKED"}
+        </div>
+
+      </div>
+
+      <div class="card-body">
+
+        <h3 class="card-title">
+          ${escapeHTML(video.title)}
+        </h3>
+
+        <p class="card-description">
+          ${escapeHTML(
+            video.description ||
+            "Tidak ada deskripsi."
+          )}
+        </p>
+
+        <div class="meta">
+
+          <span>
+            ${formatBytes(video.size)}
+          </span>
+
+          <span>
+            ${formatShortDate(video.unlockAt)}
+          </span>
+
+        </div>
+
+        <div
+          class="countdown ${unlocked ? "unlocked" : ""}"
+          data-countdown="${escapeHTML(video.id)}"
+        >
+
+          <div class="countdown-label">
+            ${unlocked
+              ? "Status"
+              : "Waktu tersisa"}
+          </div>
+
+          <div class="countdown-value">
+            ${
+              unlocked
+              ? "VIDEO TERBUKA"
+              : formatCountdown(remaining)
+            }
+          </div>
+
+        </div>
+
+        <div class="card-actions">
+
+          <button
+            class="btn btn-main btn-small open-video"
+            data-id="${escapeHTML(video.id)}"
+          >
+            ${unlocked
+              ? "▶ Buka Video"
+              : "🔒 Lihat Timer"}
+          </button>
+
+          <button
+            class="btn btn-danger btn-small delete-video"
+            data-id="${escapeHTML(video.id)}"
+            title="Hapus video"
+          >
+            ×
+          </button>
+
+        </div>
+
+      </div>
+
+    </article>
+  `;
+}
+
+
+/* =========================================================
+   COUNTDOWN ENGINE
+========================================================= */
+
+function updateCountdowns(){
+
+  updateClockGuard();
+
+  const now =
+    getEffectiveNow();
+
+  document
+    .querySelectorAll("[data-countdown]")
+    .forEach(element=>{
+
+      const id =
+        element.dataset.countdown;
+
+      const video =
+        videos.find(v=>v.id === id);
+
+      if(!video) return;
+
+      const value =
+        element.querySelector(
+          ".countdown-value"
+        );
+
+      if(!value) return;
+
+      const remaining =
+        video.unlockAt - now;
+
+      if(remaining <= 0){
+
+        element.classList.add("unlocked");
+
+        value.textContent =
+          "VIDEO TERBUKA";
+
+      }else{
+
+        element.classList.remove("unlocked");
+
+        value.textContent =
+          formatCountdown(remaining);
+      }
+
+    });
+
+  updateStats();
+
+  if(
+    currentViewerId
+  ){
+
+    updateViewerCountdown();
+  }
+
+}
+
+
+function startTimer(){
+
+  clearInterval(tickTimer);
+
+  tickTimer =
+    setInterval(
+      updateCountdowns,
+      APP.TICK_INTERVAL
+    );
+
+}
+
+
+/* =========================================================
+   UPLOAD
+========================================================= */
+
+function openUploadModal(){
+
+  $("uploadModal").classList.add("show");
+
+  setTimeout(()=>{
+    $("videoTitle").focus();
+  },100);
+
+}
+
+
+function closeUploadModal(){
+
+  $("uploadModal").classList.remove("show");
+}
+
+
+function resetUploadForm(){
+
+  $("videoFile").value = "";
+
+  $("videoTitle").value = "";
+
+  $("videoDescription").value = "";
+
+  $("unlockTime").value = "";
+
+  $("fileName").textContent =
+    "Belum ada file";
+}
+
+
+function validateVideo(file){
+
+  if(!file){
+
+    toast(
+      "File belum dipilih",
+      "Pilih file video terlebih dahulu.",
+      "warning"
+    );
+
+    return false;
+  }
+
+  if(
+    !file.type ||
+    !file.type.startsWith("video/")
+  ){
+
+    toast(
+      "File tidak valid",
+      "File yang dipilih bukan video yang dikenali browser.",
+      "warning"
+    );
+
+    return false;
+  }
+
+  if(file.size <= 0){
+
+    toast(
+      "File kosong",
+      "Ukuran file tidak valid.",
+      "warning"
+    );
+
+    return false;
+  }
+
+  return true;
+}
+
+
+async function saveVideo(){
+
+  const file =
+    $("videoFile").files[0];
+
+  const title =
+    $("videoTitle").value.trim();
+
+  const description =
+    $("videoDescription").value.trim();
+
+  const unlockValue =
+    $("unlockTime").value;
+
+  if(!validateVideo(file)){
+    return;
+  }
+
+  if(!title){
+
+    toast(
+      "Judul diperlukan",
+      "Masukkan judul video.",
+      "warning"
+    );
+
+    $("videoTitle").focus();
+
+    return;
+  }
+
+  if(!unlockValue){
+
+    toast(
+      "Waktu diperlukan",
+      "Tentukan waktu unlock.",
+      "warning"
+    );
+
+    $("unlockTime").focus();
+
+    return;
+  }
+
+  const unlockAt =
+    new Date(unlockValue).getTime();
+
+  if(!Number.isFinite(unlockAt)){
+
+    toast(
+      "Waktu tidak valid",
+      "Waktu unlock tidak dapat dibaca.",
+      "warning"
+    );
+
+    return;
+  }
+
+  if(
+    !await checkQuotaBeforeSave(file)
+  ){
+
+    return;
+  }
+
+  const saveButton =
+    $("saveVideoBtn");
+
+  const oldText =
+    saveButton.textContent;
+
+  saveButton.disabled = true;
+
+  saveButton.textContent =
+    "Menyimpan...";
+
+  try{
+
+    const record = {
+
+      id:makeId(),
+
+      title:title.slice(
+        0,
+        APP.MAX_TITLE
+      ),
+
+      description:description.slice(
+        0,
+        APP.MAX_DESCRIPTION
+      ),
+
+      fileName:file.name,
+
+      mime:file.type,
+
+      size:file.size,
+
+      createdAt:Date.now(),
+
+      /*
+        INI YANG PALING PENTING:
+        countdown TIDAK disimpan.
+        Yang disimpan adalah timestamp
+        unlockAt.
+      */
+      unlockAt:unlockAt,
+
+      blob:file
+
+    };
+
+    await dbPut(
+      APP.VIDEO_STORE,
+      record
+    );
+
+    await loadLibrary();
+
+    broadcast({
+      type:"library-changed"
+    });
+
+    closeUploadModal();
+
+    resetUploadForm();
+
+    toast(
+      "Video berhasil disimpan",
+      unlockAt <= getEffectiveNow()
+        ? "Video langsung terbuka."
+        : `Video akan terbuka pada ${formatDate(unlockAt)}.`,
+      "success"
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    if(
+      error &&
+      (
+        error.name === "QuotaExceededError" ||
+        String(error.message)
+          .toLowerCase()
+          .includes("quota")
+      )
+    ){
+
+      toast(
+        "Storage penuh",
+        "Browser menolak penyimpanan karena quota tidak mencukupi.",
+        "warning"
+      );
+
+    }else{
+
+      toast(
+        "Gagal menyimpan",
+        error?.message ||
+        "Terjadi kesalahan IndexedDB.",
+        "warning"
+      );
+    }
+
+  }finally{
+
+    saveButton.disabled = false;
+
+    saveButton.textContent =
+      oldText;
+
+  }
+
+}
+
+
+/* =========================================================
+   DELETE
+========================================================= */
+
+async function deleteVideo(id){
+
+  const video =
+    videos.find(v=>v.id === id);
+
+  if(!video) return;
+
+  const confirmed =
+    confirm(
+      `Hapus video "${video.title}"?\n\nData video dan file lokal akan dihapus permanen dari browser ini.`
+    );
+
+  if(!confirmed) return;
+
+  try{
+
+    await dbDelete(
+      APP.VIDEO_STORE,
+      id
+    );
+
+    if(currentViewerId === id){
+
+      closeViewer();
+    }
+
+    await loadLibrary();
+
+    broadcast({
+      type:"library-changed"
+    });
+
+    toast(
+      "Video dihapus",
+      "File lokal dan metadata sudah dihapus.",
+      "success"
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      "Gagal menghapus",
+      error?.message || "Terjadi kesalahan.",
+      "warning"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   VIEWER
+========================================================= */
+
+async function openViewer(id){
+
+  const video =
+    videos.find(v=>v.id === id);
+
+  if(!video) return;
+
+  currentViewerId = id;
+
+  $("viewerModal").classList.add("show");
+
+  $("viewerTitle").textContent =
+    video.title;
+
+  resetViewerVideo();
+
+  updateViewerCountdown();
+
+}
+
+
+function updateViewerCountdown(){
+
+  if(!currentViewerId) return;
+
+  const video =
+    videos.find(
+      v=>v.id === currentViewerId
+    );
+
+  if(!video) return;
+
+  const now =
+    getEffectiveNow();
+
+  const remaining =
+    video.unlockAt - now;
+
+  if(remaining <= 0){
+
+    unlockViewerVideo(video);
+
+  }else{
+
+    $("lockScreen").style.display =
+      "flex";
+
+    $("viewerVideo").style.display =
+      "none";
+
+    $("viewerCountdown").textContent =
+      formatCountdown(remaining);
+
+    $("viewerInfo").textContent =
+      `Dibuka pada ${formatDate(video.unlockAt)}.`;
+
+  }
+
+}
+
+
+function unlockViewerVideo(video){
+
+  $("lockScreen").style.display =
+    "none";
+
+  const player =
+    $("viewerVideo");
+
+  player.style.display =
+    "block";
+
+  $("viewerInfo").textContent =
+    `Video tersedia. File: ${video.fileName} • ${formatBytes(video.size)}`;
+
+  /*
+    Object URL BARU dibuat hanya saat
+    video memang sudah unlock.
+  */
+
+  if(!currentViewerObjectURL){
+
+    try{
+
+      currentViewerObjectURL =
+        URL.createObjectURL(
+          video.blob
+        );
+
+      player.src =
+        currentViewerObjectURL;
+
+      player.load();
+
+    }catch(error){
+
+      console.error(error);
+
+      toast(
+        "Video gagal dibuka",
+        "Browser gagal membuat object URL untuk file ini.",
+        "warning"
+      );
+
+      return;
+    }
+  }
+
+}
+
+
+function resetViewerVideo(){
+
+  const player =
+    $("viewerVideo");
+
+  player.pause();
+
+  player.removeAttribute("src");
+
+  player.load();
+
+  player.style.display =
+    "none";
+
+  $("lockScreen").style.display =
+    "flex";
+
+  $("viewerCountdown").textContent =
+    "00:00:00";
+
+  $("viewerInfo").textContent =
+    "Menunggu waktu unlock...";
+
+  if(currentViewerObjectURL){
+
+    URL.revokeObjectURL(
+      currentViewerObjectURL
+    );
+
+    currentViewerObjectURL = null;
+  }
+
+}
+
+
+function closeViewer(){
+
+  resetViewerVideo();
+
+  currentViewerId = null;
+
+  $("viewerModal").classList.remove("show");
+}
+
+
+/* =========================================================
+   CROSS TAB
+========================================================= */
+
+function setupBroadcast(){
+
+  if(
+    "BroadcastChannel" in window
+  ){
+
+    channel =
+      new BroadcastChannel(
+        "chronovault-sync"
+      );
+
+    channel.onmessage =
+      async event => {
+
+        if(
+          event.data &&
+          event.data.type ===
+          "library-changed"
+        ){
+
+          await loadLibrary();
+
+        }
+
+      };
+
+  }
+
+}
+
+
+function broadcast(message){
+
+  try{
+
+    channel?.postMessage(message);
+
+  }catch(error){
+
+    console.warn(
+      "Broadcast gagal:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   FILE UI
+========================================================= */
+
+function handleSelectedFile(file){
+
+  if(!file) return;
+
+  if(!validateVideo(file)){
+    $("videoFile").value = "";
+    return;
+  }
+
+  $("fileName").textContent =
+    `${file.name} • ${formatBytes(file.size)}`;
+
+}
+
+
+function setupDropZone(){
+
+  const zone =
+    $("dropZone");
+
+  zone.addEventListener(
+    "dragover",
+    event => {
+
+      event.preventDefault();
+
+      zone.classList.add("drag");
+
+    }
+  );
+
+  zone.addEventListener(
+    "dragleave",
+    ()=>{
+
+      zone.classList.remove("drag");
+
+    }
+  );
+
+  zone.addEventListener(
+    "drop",
+    event => {
+
+      event.preventDefault();
+
+      zone.classList.remove("drag");
+
+      const file =
+        event.dataTransfer.files[0];
+
+      if(!file) return;
+
+      /*
+        DataTransfer.files tidak bisa selalu
+        di-assign ke input pada semua browser.
+        Kita simpan file dalam property.
+      */
+
+      selectedDroppedFile = file;
+
+      handleSelectedFile(file);
+
+    }
+  );
+
+}
+
+let selectedDroppedFile = null;
+
+
+/* =========================================================
+   GET SELECTED FILE
+========================================================= */
+
+function getUploadFile(){
+
+  const inputFile =
+    $("videoFile").files[0];
+
+  return inputFile ||
+    selectedDroppedFile ||
+    null;
+
+}
+
+
+/* =========================================================
+   OVERRIDE SAVE FILE SOURCE
+========================================================= */
+
+const originalSaveVideo = saveVideo;
+
+saveVideo = async function(){
+
+  const file =
+    getUploadFile();
+
+  /*
+    Sementara input files diisi ulang tidak
+    memungkinkan pada semua browser, fungsi
+    utama menggunakan selectedDroppedFile.
+  */
+
+  if(file && !$("videoFile").files[0]){
+
+    /*
+      Tidak perlu memasukkan kembali ke input.
+      save logic dibuat ulang di bawah.
+    */
+
+  }
+
+  const title =
+    $("videoTitle").value.trim();
+
+  const description =
+    $("videoDescription").value.trim();
+
+  const unlockValue =
+    $("unlockTime").value;
+
+  if(!validateVideo(file)){
+    return;
+  }
+
+  if(!title){
+
+    toast(
+      "Judul diperlukan",
+      "Masukkan judul video.",
+      "warning"
+    );
+
+    $("videoTitle").focus();
+
+    return;
+  }
+
+  if(!unlockValue){
+
+    toast(
+      "Waktu diperlukan",
+      "Tentukan waktu unlock.",
+      "warning"
+    );
+
+    $("unlockTime").focus();
+
+    return;
+  }
+
+  const unlockAt =
+    new Date(unlockValue).getTime();
+
+  if(!Number.isFinite(unlockAt)){
+
+    toast(
+      "Waktu tidak valid",
+      "Waktu unlock tidak dapat dibaca.",
+      "warning"
+    );
+
+    return;
+  }
+
+  if(!await checkQuotaBeforeSave(file)){
+    return;
+  }
+
+  const saveButton =
+    $("saveVideoBtn");
+
+  saveButton.disabled = true;
+
+  saveButton.textContent =
+    "Menyimpan...";
+
+  try{
+
+    const record = {
+
+      id:makeId(),
+
+      title:title.slice(
+        0,
+        APP.MAX_TITLE
+      ),
+
+      description:description.slice(
+        0,
+        APP.MAX_DESCRIPTION
+      ),
+
+      fileName:file.name,
+
+      mime:file.type,
+
+      size:file.size,
+
+      createdAt:Date.now(),
+
+      unlockAt:unlockAt,
+
+      blob:file
+
+    };
+
+    await dbPut(
+      APP.VIDEO_STORE,
+      record
+    );
+
+    await loadLibrary();
+
+    broadcast({
+      type:"library-changed"
+    });
+
+    closeUploadModal();
+
+    resetUploadForm();
+
+    selectedDroppedFile = null;
+
+    toast(
+      "Video berhasil diamankan",
+      unlockAt <= getEffectiveNow()
+        ? "Video langsung terbuka."
+        : `Unlock: ${formatDate(unlockAt)}`,
+      "success"
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      "Gagal menyimpan",
+      error?.message ||
+      "IndexedDB gagal menyimpan file.",
+      "warning"
+    );
+
+  }finally{
+
+    saveButton.disabled = false;
+
+    saveButton.textContent =
+      "Simpan & Kunci";
+
+  }
+
+};
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+function setupEvents(){
+
+  $("uploadBtn")
+    .addEventListener(
+      "click",
+      openUploadModal
+    );
+
+  $("heroUploadBtn")
+    .addEventListener(
+      "click",
+      openUploadModal
+    );
+
+  $("uploadClose")
+    .addEventListener(
+      "click",
+      closeUploadModal
+    );
+
+  $("cancelUpload")
+    .addEventListener(
+      "click",
+      closeUploadModal
+    );
+
+  $("chooseFileBtn")
+    .addEventListener(
+      "click",
+      ()=>{
+        $("videoFile").click();
+      }
+    );
+
+  $("videoFile")
+    .addEventListener(
+      "change",
+      event=>{
+
+        selectedDroppedFile =
+          event.target.files[0] || null;
+
+        handleSelectedFile(
+          selectedDroppedFile
+        );
+
+      }
+    );
+
+  $("saveVideoBtn")
+    .addEventListener(
+      "click",
+      saveVideo
+    );
+
+  $("refreshBtn")
+    .addEventListener(
+      "click",
+      async ()=>{
+
+        await initializeClock();
+
+        await loadLibrary();
+
+        toast(
+          "Library diperbarui",
+          "Metadata dan countdown disinkronkan ulang.",
+          "success"
+        );
+
+      }
+    );
+
+  $("storageBtn")
+    .addEventListener(
+      "click",
+      async ()=>{
+
+        await updateStorageStats();
+
+        const estimate =
+          navigator.storage?.estimate
+            ? await navigator.storage.estimate()
+            : null;
+
+        if(estimate){
+
+          toast(
+            "Storage",
+            `${formatBytes(estimate.usage || 0)} digunakan dari ${formatBytes(estimate.quota || 0)}.`,
+            "success"
+          );
+
+        }else{
+
+          toast(
+            "Storage",
+            "Informasi quota tidak tersedia pada browser ini.",
+            "warning"
+          );
+
+        }
+
+      }
+    );
+
+  $("requestPersistBtn")
+    .addEventListener(
+      "click",
+      requestPersistentStorage
+    );
+
+  $("searchInput")
+    .addEventListener(
+      "input",
+      renderLibrary
+    );
+
+  $("sortBtn")
+    .addEventListener(
+      "click",
+      async ()=>{
+
+        sortNewestFirst =
+          !sortNewestFirst;
+
+        $("sortBtn").textContent =
+          sortNewestFirst
+            ? "Terbaru ↓"
+            : "Terlama ↑";
+
+        await loadLibrary();
+
+      }
+    );
+
+  $("viewerClose")
+    .addEventListener(
+      "click",
+      closeViewer
+    );
+
+  /*
+    Delegated events:
+    lebih aman daripada memasang listener
+    berulang setiap render.
+  */
+
+  $("videoGrid")
+    .addEventListener(
+      "click",
+      event=>{
+
+        const openButton =
+          event.target.closest(
+            ".open-video"
+          );
+
+        if(openButton){
+
+          openViewer(
+            openButton.dataset.id
+          );
+
+          return;
+        }
+
+        const deleteButton =
+          event.target.closest(
+            ".delete-video"
+          );
+
+        if(deleteButton){
+
+          deleteVideo(
+            deleteButton.dataset.id
+          );
+
+        }
+
+      }
+    );
+
+  /*
+    Close modal jika klik background.
+  */
+
+  $("uploadModal")
+    .addEventListener(
+      "click",
+      event=>{
+
+        if(
+          event.target ===
+          $("uploadModal")
+        ){
+
+          closeUploadModal();
+
+        }
+
+      }
+    );
+
+  $("viewerModal")
+    .addEventListener(
+      "click",
+      event=>{
+
+        if(
+          event.target ===
+          $("viewerModal")
+        ){
+
+          closeViewer();
+
+        }
+
+      }
+    );
+
+  /*
+    ESC
+  */
+
+  document.addEventListener(
+    "keydown",
+    event=>{
+
+      if(event.key !== "Escape")
+        return;
+
+      if(
+        $("viewerModal")
+          .classList.contains("show")
+      ){
+
+        closeViewer();
+
+      }else if(
+        $("uploadModal")
+          .classList.contains("show")
+      ){
+
+        closeUploadModal();
+
+      }
+
+    }
+  );
+
+  /*
+    Browser lifecycle:
+    refresh, back-forward cache,
+    tab kembali aktif, focus.
+  */
+
+  window.addEventListener(
+    "pageshow",
+    async ()=>{
+
+      await initializeClock();
+      await loadLibrary();
+
+    }
+  );
+
+  document.addEventListener(
+    "visibilitychange",
+    async ()=>{
+
+      if(
+        document.visibilityState ===
+        "visible"
+      ){
+
+        await initializeClock();
+        await loadLibrary();
+
+      }else{
+
+        await saveClockState();
+
+      }
+
+    }
+  );
+
+  window.addEventListener(
+    "focus",
+    async ()=>{
+
+      updateClockGuard();
+
+      await saveClockState();
+
+      await loadLibrary();
+
+    }
+  );
+
+  window.addEventListener(
+    "beforeunload",
+    ()=>{
+
+      saveClockState();
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   PERIODIC CLOCK STATE SAVE
+========================================================= */
+
+function startClockPersistence(){
+
+  clearInterval(clockSaveTimer);
+
+  clockSaveTimer =
+    setInterval(
+      async ()=>{
+
+        updateClockGuard();
+
+        await saveClockState();
+
+      },
+      APP.CLOCK_SAVE_INTERVAL
+    );
+
+}
+
+
+/* =========================================================
+   STORAGE ERROR HANDLING
+========================================================= */
+
+window.addEventListener(
+  "error",
+  event=>{
+
+    console.error(
+      "Runtime error:",
+      event.error || event.message
+    );
+
+  }
+);
+
+window.addEventListener(
+  "unhandledrejection",
+  event=>{
+
+    console.error(
+      "Unhandled promise:",
+      event.reason
+    );
+
+  }
+);
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+
+async function init(){
+
+  try{
+
+    /*
+      IndexedDB tersedia?
+    */
+
+    if(!("indexedDB" in window)){
+
+      throw new Error(
+        "Browser tidak mendukung IndexedDB."
+      );
+
+    }
+
+    /*
+      Buka database.
+    */
+
+    await openDatabase();
+
+    /*
+      Clock guard harus dibaca SEBELUM
+      countdown pertama.
+    */
+
+    await initializeClock();
+
+    /*
+      Cross-tab.
+    */
+
+    setupBroadcast();
+
+    /*
+      Event.
+    */
+
+    setupEvents();
+
+    setupDropZone();
+
+    /*
+      Load data yang tersimpan.
+    */
+
+    await loadLibrary();
+
+    /*
+      Timer.
+    */
+
+    startTimer();
+
+    startClockPersistence();
+
+    /*
+      Request persistent storage secara
+      otomatis jika browser mendukung.
+      Ini hanya REQUEST, bukan jaminan.
+    */
+
+    if(
+      navigator.storage &&
+      navigator.storage.persisted
+    ){
+
+      try{
+
+        const persisted =
+          await navigator.storage.persisted();
+
+        if(!persisted &&
+           navigator.storage.persist){
+
+          /*
+            Jangan memaksa.
+            Browser menentukan apakah
+            origin layak persistent.
+          */
+
+          await navigator.storage.persist();
+
+        }
+
+      }catch(error){
+
+        console.warn(
+          "Persistent storage request:",
+          error
+        );
+
+      }
+
+    }
+
+    /*
+      Hapus loading.
+    */
+
+    setTimeout(()=>{
+
+      $("loading")
+        .classList.add("hide");
+
+    },350);
+
+  }catch(error){
+
+    console.error(error);
+
+    $("loading").classList.add("hide");
+
+    toast(
+      "Gagal menginisialisasi",
+      error?.message ||
+      "Sistem database tidak dapat dimulai.",
+      "warning"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+init();
+
+</script>
+
+</body>
+  </html>
