@@ -1,0 +1,4673 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#f5ead8">
+<meta name="description" content="ChronoVault — Timed Video & ZIP Vault">
+
+<title>ChronoVault — Timed Vault</title>
+
+<style>
+:root{
+    --bg:#f6eddf;
+    --bg2:#fffaf2;
+    --card:#fffdf8;
+    --card2:#f9f0e3;
+    --text:#3b2921;
+    --muted:#806c60;
+    --line:#ead7c4;
+    --coral:#d86d58;
+    --coral2:#ef927b;
+    --gold:#c79b55;
+    --cream:#fff7eb;
+    --brown:#70483a;
+    --burgundy:#8d3d3d;
+    --danger:#a64c4c;
+    --shadow:0 20px 60px rgba(112,72,58,.12);
+    --shadow2:0 10px 30px rgba(112,72,58,.09);
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    margin:0;
+    min-height:100vh;
+    color:var(--text);
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:
+        radial-gradient(circle at 10% 5%,rgba(239,146,123,.15),transparent 25%),
+        radial-gradient(circle at 90% 15%,rgba(199,155,85,.13),transparent 25%),
+        linear-gradient(135deg,#f7eee1,#fffaf2 50%,#f2e5d5);
+}
+
+button,
+input,
+textarea,
+select{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+.app{
+    width:min(1450px,calc(100% - 32px));
+    margin:auto;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    padding:22px 0;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:13px;
+}
+
+.brand-logo{
+    width:48px;
+    height:48px;
+    display:grid;
+    place-items:center;
+    border-radius:16px;
+    color:#fff;
+    background:linear-gradient(145deg,var(--coral),var(--burgundy));
+    box-shadow:0 10px 25px rgba(141,61,61,.22);
+    font-size:22px;
+}
+
+.brand-title{
+    font-size:19px;
+    font-weight:900;
+}
+
+.brand-sub{
+    margin-top:2px;
+    color:var(--muted);
+    font-size:12px;
+}
+
+.status{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:9px 13px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    color:var(--muted);
+    background:rgba(255,253,248,.8);
+    box-shadow:var(--shadow2);
+    font-size:12px;
+}
+
+.status-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:var(--coral);
+    box-shadow:0 0 0 5px rgba(216,109,88,.12);
+}
+
+.hero{
+    position:relative;
+    overflow:hidden;
+    margin-bottom:26px;
+    padding:58px;
+    border:1px solid var(--line);
+    border-radius:34px;
+    background:linear-gradient(135deg,rgba(255,253,248,.98),rgba(250,237,221,.96));
+    box-shadow:var(--shadow);
+}
+
+.hero::before{
+    content:"";
+    position:absolute;
+    width:300px;
+    height:300px;
+    top:-130px;
+    right:-100px;
+    border-radius:50%;
+    background:rgba(216,109,88,.12);
+}
+
+.hero::after{
+    content:"";
+    position:absolute;
+    width:220px;
+    height:220px;
+    left:-100px;
+    bottom:-130px;
+    border-radius:50%;
+    background:rgba(199,155,85,.12);
+}
+
+.hero-content{
+    position:relative;
+    z-index:2;
+    max-width:900px;
+}
+
+.eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:17px;
+    padding:8px 13px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    color:var(--brown);
+    background:var(--cream);
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.8px;
+}
+
+.hero h1{
+    margin:0;
+    font-size:clamp(38px,6vw,72px);
+    line-height:.95;
+    letter-spacing:-4px;
+}
+
+.hero h1 span{
+    color:var(--coral);
+}
+
+.hero p{
+    max-width:760px;
+    margin:23px 0 28px;
+    color:var(--muted);
+    font-size:16px;
+    line-height:1.7;
+}
+
+.hero-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+}
+
+.btn{
+    padding:13px 18px;
+    border:0;
+    border-radius:15px;
+    font-weight:800;
+    transition:.2s ease;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+}
+
+.btn:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+    transform:none;
+}
+
+.btn-primary{
+    color:#fff;
+    background:linear-gradient(135deg,var(--coral),var(--burgundy));
+    box-shadow:0 12px 25px rgba(141,61,61,.2);
+}
+
+.btn-secondary{
+    color:var(--brown);
+    border:1px solid var(--line);
+    background:var(--cream);
+}
+
+.btn-gold{
+    color:#fff;
+    background:linear-gradient(135deg,#b88945,#94703c);
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:26px;
+}
+
+.stat{
+    padding:21px;
+    border:1px solid var(--line);
+    border-radius:21px;
+    background:rgba(255,253,248,.88);
+    box-shadow:var(--shadow2);
+}
+
+.stat-label{
+    color:var(--muted);
+    font-size:12px;
+    font-weight:700;
+}
+
+.stat-value{
+    margin-top:8px;
+    font-size:28px;
+    font-weight:900;
+}
+
+.library{
+    padding:23px;
+    border:1px solid var(--line);
+    border-radius:28px;
+    background:rgba(255,253,248,.88);
+    box-shadow:var(--shadow);
+}
+
+.library-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    margin-bottom:18px;
+}
+
+.library-title{
+    font-size:22px;
+    font-weight:900;
+}
+
+.library-sub{
+    margin-top:3px;
+    color:var(--muted);
+    font-size:12px;
+}
+
+.toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.search{
+    position:relative;
+    flex:1;
+    min-width:220px;
+}
+
+.search input{
+    width:100%;
+    padding:13px 15px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    outline:none;
+    color:var(--text);
+    background:var(--bg2);
+}
+
+.search input:focus{
+    border-color:var(--coral);
+    box-shadow:0 0 0 4px rgba(216,109,88,.1);
+}
+
+.select{
+    padding:12px 14px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    outline:none;
+    color:var(--text);
+    background:var(--bg2);
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+}
+
+.empty{
+    grid-column:1/-1;
+    padding:70px 20px;
+    text-align:center;
+    border:1px dashed var(--line);
+    border-radius:22px;
+    background:var(--card2);
+}
+
+.empty-icon{
+    margin-bottom:12px;
+    font-size:45px;
+}
+
+.empty-title{
+    font-size:18px;
+    font-weight:900;
+}
+
+.empty-sub{
+    margin-top:7px;
+    color:var(--muted);
+    font-size:13px;
+}
+
+.file-card{
+    position:relative;
+    overflow:hidden;
+    border:1px solid var(--line);
+    border-radius:22px;
+    background:var(--card);
+    box-shadow:var(--shadow2);
+    animation:cardIn .45s ease both;
+    transition:.25s ease;
+}
+
+.file-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 18px 40px rgba(112,72,58,.14);
+}
+
+@keyframes cardIn{
+    from{
+        opacity:0;
+        transform:translateY(12px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.file-top{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding:19px;
+}
+
+.type-icon{
+    width:50px;
+    height:50px;
+    display:grid;
+    place-items:center;
+    border-radius:16px;
+    background:linear-gradient(145deg,#f7d6c8,#f2b9a7);
+    font-size:24px;
+}
+
+.type-icon.zip{
+    background:linear-gradient(145deg,#ead9b7,#d8b77a);
+}
+
+.badge{
+    align-self:flex-start;
+    padding:7px 10px;
+    border-radius:999px;
+    color:var(--brown);
+    background:#f7e8dc;
+    font-size:10px;
+    font-weight:900;
+}
+
+.badge.zip{
+    color:#795b2d;
+    background:#eee2c8;
+}
+
+.file-body{
+    padding:0 19px 19px;
+}
+
+.file-title{
+    font-size:17px;
+    font-weight:900;
+    word-break:break-word;
+}
+
+.file-description{
+    min-height:38px;
+    margin-top:6px;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.55;
+}
+
+.meta{
+    display:grid;
+    gap:7px;
+    margin-top:15px;
+}
+
+.meta-row{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    color:var(--muted);
+    font-size:11px;
+}
+
+.meta-row strong{
+    color:var(--text);
+    text-align:right;
+    word-break:break-word;
+}
+
+.countdown{
+    margin-top:16px;
+    padding:14px;
+    border:1px solid var(--line);
+    border-radius:16px;
+    text-align:center;
+    background:linear-gradient(135deg,#fff4e9,#f8e8d8);
+}
+
+.countdown-label{
+    color:var(--muted);
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.8px;
+    text-transform:uppercase;
+}
+
+.countdown-time{
+    margin-top:5px;
+    color:var(--coral);
+    font-size:20px;
+    font-weight:900;
+}
+
+.countdown.ready{
+    background:linear-gradient(135deg,#f6e3d5,#f4d1c1);
+}
+
+.countdown.ready .countdown-time{
+    color:var(--burgundy);
+}
+
+.card-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    padding:0 19px 19px;
+}
+
+.card-actions .full{
+    grid-column:1/-1;
+}
+
+.card-btn{
+    padding:10px;
+    border:1px solid var(--line);
+    border-radius:13px;
+    color:var(--brown);
+    background:var(--cream);
+    font-size:12px;
+    font-weight:800;
+    transition:.2s ease;
+}
+
+.card-btn:hover{
+    transform:translateY(-1px);
+    border-color:var(--coral2);
+}
+
+.card-btn.primary{
+    color:#fff;
+    border-color:transparent;
+    background:linear-gradient(135deg,var(--coral),var(--burgundy));
+}
+
+.card-btn.edit{
+    color:#795b2d;
+    background:#f3e8d1;
+}
+
+.card-btn.danger{
+    color:var(--danger);
+}
+
+.overlay{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    background:rgba(112,72,58,.38);
+    backdrop-filter:blur(10px);
+}
+
+.overlay.show{
+    display:flex;
+    animation:fadeIn .2s ease;
+}
+
+@keyframes fadeIn{
+    from{opacity:0}
+    to{opacity:1}
+}
+
+.modal{
+    width:min(720px,100%);
+    max-height:92vh;
+    overflow:auto;
+    border:1px solid var(--line);
+    border-radius:28px;
+    background:var(--card);
+    box-shadow:0 30px 100px rgba(112,72,58,.25);
+    animation:modalIn .25s ease;
+}
+
+@keyframes modalIn{
+    from{
+        opacity:0;
+        transform:translateY(20px) scale(.98);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0) scale(1);
+    }
+}
+
+.modal-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    padding:22px 24px;
+    border-bottom:1px solid var(--line);
+}
+
+.modal-title{
+    font-size:20px;
+    font-weight:900;
+}
+
+.close{
+    width:38px;
+    height:38px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    color:var(--brown);
+    background:var(--cream);
+    font-size:20px;
+}
+
+.modal-body{
+    padding:24px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.form-group{
+    display:grid;
+    gap:7px;
+}
+
+.form-group.full{
+    grid-column:1/-1;
+}
+
+.form-label{
+    color:var(--brown);
+    font-size:12px;
+    font-weight:900;
+}
+
+.input,
+.textarea{
+    width:100%;
+    padding:13px 14px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    outline:none;
+    color:var(--text);
+    background:var(--bg2);
+}
+
+.textarea{
+    min-height:95px;
+    resize:vertical;
+}
+
+.input:focus,
+.textarea:focus{
+    border-color:var(--coral);
+    box-shadow:0 0 0 4px rgba(216,109,88,.1);
+}
+
+.upload-zone{
+    padding:28px 18px;
+    border:2px dashed #ddbaa1;
+    border-radius:20px;
+    text-align:center;
+    background:#fff8ee;
+    transition:.2s ease;
+}
+
+.upload-zone.drag{
+    border-color:var(--coral);
+    background:#fff0e7;
+    transform:scale(1.01);
+}
+
+.upload-icon{
+    margin-bottom:8px;
+    font-size:40px;
+}
+
+.upload-main{
+    font-weight:900;
+}
+
+.upload-sub{
+    margin-top:5px;
+    color:var(--muted);
+    font-size:12px;
+}
+
+.selected-file{
+    display:none;
+    margin-top:14px;
+    padding:12px;
+    border-radius:14px;
+    text-align:left;
+    background:#f5e8da;
+    font-size:12px;
+}
+
+.selected-file.show{
+    display:block;
+}
+
+.modal-footer{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    padding:20px 24px;
+    border-top:1px solid var(--line);
+}
+
+.edit-notice{
+    margin-bottom:18px;
+    padding:13px 14px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    color:var(--muted);
+    background:#faf0e3;
+    font-size:12px;
+    line-height:1.5;
+}
+
+.viewer{
+    width:min(1100px,100%);
+}
+
+.viewer-body{
+    padding:20px;
+}
+
+.video-wrap{
+    display:grid;
+    place-items:center;
+    overflow:hidden;
+    min-height:300px;
+    border-radius:20px;
+    background:#2e211c;
+}
+
+video{
+    display:block;
+    width:100%;
+    max-height:70vh;
+    background:#2e211c;
+}
+
+.viewer-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:15px;
+}
+
+.viewer-action{
+    flex:1;
+    min-width:180px;
+    padding:13px 16px;
+    border:0;
+    border-radius:14px;
+    color:#fff;
+    background:linear-gradient(135deg,var(--coral),var(--burgundy));
+    font-weight:900;
+}
+
+.zip-view{
+    padding:45px 25px;
+    border-radius:20px;
+    text-align:center;
+    background:
+        radial-gradient(circle at 50% 20%,rgba(199,155,85,.22),transparent 30%),
+        #fff7eb;
+}
+
+.zip-big{
+    font-size:80px;
+}
+
+.zip-name{
+    margin-top:12px;
+    font-size:21px;
+    font-weight:900;
+    word-break:break-word;
+}
+
+.zip-info{
+    margin-top:6px;
+    color:var(--muted);
+    font-size:13px;
+}
+
+.download-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    margin-top:20px;
+    padding:13px 20px;
+    border-radius:14px;
+    color:#fff;
+    background:linear-gradient(135deg,var(--coral),var(--burgundy));
+    font-weight:900;
+}
+
+.backup-box{
+    padding:20px;
+    border:1px solid var(--line);
+    border-radius:20px;
+    background:#fff7eb;
+}
+
+.backup-box h3{
+    margin:0 0 8px;
+}
+
+.backup-box p{
+    margin:0 0 15px;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.6;
+}
+
+.backup-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.toast-stack{
+    position:fixed;
+    right:18px;
+    bottom:18px;
+    z-index:300;
+    display:grid;
+    gap:10px;
+}
+
+.toast{
+    width:min(370px,calc(100vw - 36px));
+    padding:14px 16px;
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:var(--card);
+    box-shadow:0 20px 50px rgba(112,72,58,.18);
+    animation:toastIn .3s ease;
+    font-size:13px;
+}
+
+@keyframes toastIn{
+    from{
+        opacity:0;
+        transform:translateX(20px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
+
+.toast strong{
+    display:block;
+    margin-bottom:3px;
+}
+
+footer{
+    padding:30px 0 45px;
+    color:var(--muted);
+    text-align:center;
+    font-size:11px;
+}
+
+@media(max-width:1000px){
+    .grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:700px){
+    .app{
+        width:min(100% - 20px,1450px);
+    }
+
+    .status{
+        display:none;
+    }
+
+    .hero{
+        padding:35px 24px;
+        border-radius:25px;
+    }
+
+    .hero h1{
+        letter-spacing:-2.5px;
+    }
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-group.full{
+        grid-column:auto;
+    }
+
+    .library{
+        padding:16px;
+    }
+
+    .library-head{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .modal-body{
+        padding:18px;
+    }
+
+    .modal-footer{
+        padding:16px 18px;
+    }
+}
+
+@media(max-width:430px){
+    .stats{
+        grid-template-columns:1fr;
+    }
+
+    .hero-actions .btn{
+        width:100%;
+    }
+
+    .card-actions{
+        grid-template-columns:1fr;
+    }
+
+    .card-actions .full{
+        grid-column:auto;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header class="topbar">
+
+    <div class="brand">
+
+        <div class="brand-logo">
+            ⏳
+        </div>
+
+        <div>
+            <div class="brand-title">
+                ChronoVault
+            </div>
+
+            <div class="brand-sub">
+                Timed Video & ZIP Vault
+            </div>
+        </div>
+
+    </div>
+
+    <div class="status">
+        <span class="status-dot"></span>
+        Local Vault Active
+    </div>
+
+</header>
+
+
+<section class="hero">
+
+    <div class="hero-content">
+
+        <div class="eyebrow">
+            🔐 TIMED FILE STORAGE
+        </div>
+
+        <h1>
+            Simpan sekarang.<br>
+            <span>Buka nanti.</span>
+        </h1>
+
+        <p>
+            Upload video atau ZIP, tentukan kapan file boleh dibuka,
+            edit jadwal kapan saja, dan backup seluruh Vault agar file
+            lebih mudah dipulihkan jika browser bermasalah.
+        </p>
+
+        <div class="hero-actions">
+
+            <button
+                class="btn btn-primary"
+                onclick="openUpload()">
+                ＋ Upload File
+            </button>
+
+            <button
+                class="btn btn-gold"
+                onclick="openBackup()">
+                💾 Backup / Restore
+            </button>
+
+            <button
+                class="btn btn-secondary"
+                onclick="document.getElementById('library').scrollIntoView({behavior:'smooth'})">
+                Lihat Vault
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="stats">
+
+    <div class="stat">
+        <div class="stat-label">TOTAL FILE</div>
+        <div class="stat-value" id="statTotal">0</div>
+    </div>
+
+    <div class="stat">
+        <div class="stat-label">VIDEO</div>
+        <div class="stat-value" id="statVideo">0</div>
+    </div>
+
+    <div class="stat">
+        <div class="stat-label">ZIP</div>
+        <div class="stat-value" id="statZip">0</div>
+    </div>
+
+    <div class="stat">
+        <div class="stat-label">STORAGE</div>
+        <div class="stat-value" id="statStorage">0 MB</div>
+    </div>
+
+</section>
+
+
+<section class="library" id="library">
+
+    <div class="library-head">
+
+        <div>
+            <div class="library-title">
+                Your Vault
+            </div>
+
+            <div class="library-sub">
+                Video dan ZIP tersimpan di browser ini.
+            </div>
+        </div>
+
+        <button
+            class="btn btn-primary"
+            onclick="openUpload()">
+            ＋ Tambah File
+        </button>
+
+    </div>
+
+
+    <div class="toolbar">
+
+        <div class="search">
+
+            <input
+                id="searchInput"
+                type="search"
+                placeholder="Cari nama file atau deskripsi...">
+
+        </div>
+
+        <select
+            id="typeFilter"
+            class="select">
+
+            <option value="all">
+                Semua tipe
+            </option>
+
+            <option value="video">
+                🎬 Video
+            </option>
+
+            <option value="zip">
+                📦 ZIP
+            </option>
+
+        </select>
+
+        <select
+            id="sortSelect"
+            class="select">
+
+            <option value="newest">
+                Terbaru
+            </option>
+
+            <option value="oldest">
+                Terlama
+            </option>
+
+            <option value="unlock">
+                Waktu buka
+            </option>
+
+            <option value="name">
+                Nama
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <div
+        class="grid"
+        id="fileGrid">
+
+    </div>
+
+</section>
+
+
+<footer>
+    ChronoVault • Timed Video & ZIP Vault
+</footer>
+
+</div>
+
+
+<!-- =====================================================
+     UPLOAD MODAL
+===================================================== -->
+
+<div
+    class="overlay"
+    id="uploadOverlay">
+
+    <div class="modal">
+
+        <div class="modal-head">
+
+            <div class="modal-title">
+                Upload File Terjadwal
+            </div>
+
+            <button
+                class="close"
+                onclick="closeUpload()">
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <div class="form-grid">
+
+                <div class="form-group full">
+
+                    <label class="form-label">
+                        File
+                    </label>
+
+                    <div
+                        class="upload-zone"
+                        id="uploadZone">
+
+                        <div class="upload-icon">
+                            🎬📦
+                        </div>
+
+                        <div class="upload-main">
+                            Pilih Video atau ZIP
+                        </div>
+
+                        <div class="upload-sub">
+                            Klik atau drag & drop file
+                        </div>
+
+                        <input
+                            id="videoFile"
+                            type="file"
+                            accept="video/*,.zip,application/zip,application/x-zip-compressed"
+                            hidden>
+
+                        <div
+                            class="selected-file"
+                            id="selectedFile">
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Judul
+                    </label>
+
+                    <input
+                        id="fileTitle"
+                        class="input"
+                        maxlength="120"
+                        placeholder="Judul file"
+                        type="text">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Tanggal & Jam Buka
+                    </label>
+
+                    <input
+                        id="unlockAt"
+                        class="input"
+                        type="datetime-local">
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label class="form-label">
+                        Deskripsi
+                    </label>
+
+                    <textarea
+                        id="fileDescription"
+                        class="textarea"
+                        maxlength="500"
+                        placeholder="Keterangan file..."></textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                class="btn btn-secondary"
+                onclick="closeUpload()">
+                Batal
+            </button>
+
+            <button
+                class="btn btn-primary"
+                id="saveButton"
+                onclick="saveFile()">
+                Simpan ke Vault
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     EDIT MODAL
+===================================================== -->
+
+<div
+    class="overlay"
+    id="editOverlay">
+
+    <div class="modal">
+
+        <div class="modal-head">
+
+            <div class="modal-title">
+                ✏️ Edit File
+            </div>
+
+            <button
+                class="close"
+                onclick="closeEdit()">
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <div class="edit-notice">
+                File asli tidak akan di-upload ulang.
+                Perubahan hanya diterapkan pada informasi dan
+                waktu pembukaan file yang sudah tersimpan.
+            </div>
+
+
+            <div class="form-grid">
+
+                <div class="form-group full">
+
+                    <label class="form-label">
+                        File Tersimpan
+                    </label>
+
+                    <input
+                        id="editFileName"
+                        class="input"
+                        type="text"
+                        readonly>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Judul
+                    </label>
+
+                    <input
+                        id="editTitle"
+                        class="input"
+                        maxlength="120"
+                        type="text">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Tanggal & Jam Buka
+                    </label>
+
+                    <input
+                        id="editUnlockAt"
+                        class="input"
+                        type="datetime-local">
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label class="form-label">
+                        Deskripsi
+                    </label>
+
+                    <textarea
+                        id="editDescription"
+                        class="textarea"
+                        maxlength="500"></textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                class="btn btn-secondary"
+                onclick="closeEdit()">
+                Batal
+            </button>
+
+            <button
+                class="btn btn-primary"
+                id="editSaveButton"
+                onclick="saveEdit()">
+                Simpan Perubahan
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     BACKUP MODAL
+===================================================== -->
+
+<div
+    class="overlay"
+    id="backupOverlay">
+
+    <div class="modal">
+
+        <div class="modal-head">
+
+            <div class="modal-title">
+                💾 Backup & Restore Vault
+            </div>
+
+            <button
+                class="close"
+                onclick="closeBackup()">
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <div class="backup-box">
+
+                <h3>
+                    💾 Backup Vault
+                </h3>
+
+                <p>
+                    Backup akan memasukkan data jadwal, judul,
+                    deskripsi, dan isi asli video/ZIP.
+                    Simpan file backup di tempat yang aman.
+                </p>
+
+                <div class="backup-actions">
+
+                    <button
+                        class="btn btn-primary"
+                        id="backupButton"
+                        onclick="createBackup()">
+                        💾 Buat Backup
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <br>
+
+
+            <div class="backup-box">
+
+                <h3>
+                    ♻️ Restore Vault
+                </h3>
+
+                <p>
+                    Pilih file backup ChronoVault yang sebelumnya
+                    dibuat dari perangkat/browser ini atau Vault lain.
+                    Data akan digabung dengan data yang sudah ada.
+                </p>
+
+                <div class="backup-actions">
+
+                    <button
+                        class="btn btn-gold"
+                        onclick="document.getElementById('restoreInput').click()">
+                        ♻️ Pilih Backup
+                    </button>
+
+                    <input
+                        id="restoreInput"
+                        type="file"
+                        accept=".chronovault,.json,application/json"
+                        hidden>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                class="btn btn-secondary"
+                onclick="closeBackup()">
+                Tutup
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     VIEWER
+===================================================== -->
+
+<div
+    class="overlay"
+    id="viewerOverlay">
+
+    <div class="modal viewer">
+
+        <div class="modal-head">
+
+            <div
+                class="modal-title"
+                id="viewerTitle">
+                File
+            </div>
+
+            <button
+                class="close"
+                onclick="closeViewer()">
+                ×
+            </button>
+
+        </div>
+
+        <div
+            class="viewer-body"
+            id="viewerBody">
+        </div>
+
+    </div>
+
+</div>
+
+
+<div
+    class="toast-stack"
+    id="toastStack">
+</div>
+
+
+<script>
+"use strict";
+
+/* =========================================================
+   DATABASE COMPATIBILITY
+   PENTING:
+   DATABASE DAN OBJECT STORE INI SAMA DENGAN VERSI SEBELUMNYA
+========================================================= */
+
+const DB_NAME =
+    "chronovault_timed_video_zip_final";
+
+const DB_VERSION =
+    1;
+
+const STORE_NAME =
+    "files";
+
+let db = null;
+
+let filesCache = [];
+
+let editingId = null;
+
+const objectUrls =
+    new Map();
+
+const channel =
+    "BroadcastChannel" in window
+        ? new BroadcastChannel(
+            "chronovault-file-sync"
+        )
+        : null;
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const $ =
+    selector =>
+        document.querySelector(selector);
+
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+
+}
+
+
+function formatBytes(bytes){
+
+    if(!bytes){
+        return "0 B";
+    }
+
+    const units = [
+        "B",
+        "KB",
+        "MB",
+        "GB",
+        "TB"
+    ];
+
+    const i =
+        Math.min(
+            units.length - 1,
+            Math.floor(
+                Math.log(bytes) /
+                Math.log(1024)
+            )
+        );
+
+    return (
+        (bytes /
+        Math.pow(1024,i))
+        .toFixed(
+            i === 0 ? 0 : 2
+        )
+        + " "
+        + units[i]
+    );
+
+}
+
+
+function formatDate(timestamp){
+
+    return new Intl.DateTimeFormat(
+        "id-ID",
+        {
+            dateStyle:"medium",
+            timeStyle:"short"
+        }
+    ).format(
+        new Date(timestamp)
+    );
+
+}
+
+
+function formatDuration(ms){
+
+    if(ms <= 0){
+        return "00:00:00";
+    }
+
+    let total =
+        Math.floor(ms / 1000);
+
+    const days =
+        Math.floor(total / 86400);
+
+    total %= 86400;
+
+    const hours =
+        Math.floor(total / 3600);
+
+    total %= 3600;
+
+    const minutes =
+        Math.floor(total / 60);
+
+    const seconds =
+        total % 60;
+
+    const pad =
+        n =>
+            String(n)
+                .padStart(2,"0");
+
+    if(days > 0){
+
+        return (
+            days +
+            "h " +
+            pad(hours) +
+            ":" +
+            pad(minutes) +
+            ":" +
+            pad(seconds)
+        );
+
+    }
+
+    return (
+        pad(hours) +
+        ":" +
+        pad(minutes) +
+        ":" +
+        pad(seconds)
+    );
+
+}
+
+
+function toLocalInputValue(date){
+
+    const pad =
+        n =>
+            String(n)
+                .padStart(2,"0");
+
+    return (
+        date.getFullYear() +
+        "-" +
+        pad(date.getMonth()+1) +
+        "-" +
+        pad(date.getDate()) +
+        "T" +
+        pad(date.getHours()) +
+        ":" +
+        pad(date.getMinutes())
+    );
+
+}
+
+
+function showToast(title,message){
+
+    const stack =
+        $("#toastStack");
+
+    const toast =
+        document.createElement("div");
+
+    toast.className =
+        "toast";
+
+    toast.innerHTML = `
+        <strong>
+            ${escapeHTML(title)}
+        </strong>
+
+        <span>
+            ${escapeHTML(message)}
+        </span>
+    `;
+
+    stack.appendChild(toast);
+
+    setTimeout(()=>{
+
+        toast.style.opacity =
+            "0";
+
+        toast.style.transform =
+            "translateX(20px)";
+
+        setTimeout(
+            () => toast.remove(),
+            250
+        );
+
+    },4000);
+
+}
+
+
+/* =========================================================
+   DATABASE
+========================================================= */
+
+function openDB(){
+
+    return new Promise(
+        (resolve,reject)=>{
+
+            const request =
+                indexedDB.open(
+                    DB_NAME,
+                    DB_VERSION
+                );
+
+
+            request.onupgradeneeded =
+                event => {
+
+                    const database =
+                        event.target.result;
+
+
+                    /*
+                     * HANYA membuat store kalau belum ada.
+                     *
+                     * Kalau database versi lama sudah memiliki
+                     * store "files", KITA TIDAK MENYENTUH DATA LAMA.
+                     */
+
+                    if(
+                        !database
+                            .objectStoreNames
+                            .contains(STORE_NAME)
+                    ){
+
+                        const store =
+                            database.createObjectStore(
+                                STORE_NAME,
+                                {
+                                    keyPath:"id"
+                                }
+                            );
+
+                        store.createIndex(
+                            "unlockAt",
+                            "unlockAt",
+                            {
+                                unique:false
+                            }
+                        );
+
+                        store.createIndex(
+                            "type",
+                            "type",
+                            {
+                                unique:false
+                            }
+                        );
+
+                        store.createIndex(
+                            "createdAt",
+                            "createdAt",
+                            {
+                                unique:false
+                            }
+                        );
+
+                    }
+
+                };
+
+
+            request.onsuccess =
+                event => {
+
+                    db =
+                        event.target.result;
+
+                    resolve(db);
+
+                };
+
+
+            request.onerror =
+                () => {
+
+                    reject(
+                        request.error
+                    );
+
+                };
+
+        }
+    );
+
+}
+
+
+function dbPut(record){
+
+    return new Promise(
+        (resolve,reject)=>{
+
+            const tx =
+                db.transaction(
+                    STORE_NAME,
+                    "readwrite"
+                );
+
+            tx.objectStore(
+                STORE_NAME
+            ).put(record);
+
+            tx.oncomplete =
+                resolve;
+
+            tx.onerror =
+                () => reject(tx.error);
+
+        }
+    );
+
+}
+
+
+function dbDelete(id){
+
+    return new Promise(
+        (resolve,reject)=>{
+
+            const tx =
+                db.transaction(
+                    STORE_NAME,
+                    "readwrite"
+                );
+
+            tx.objectStore(
+                STORE_NAME
+            ).delete(id);
+
+            tx.oncomplete =
+                resolve;
+
+            tx.onerror =
+                () => reject(tx.error);
+
+        }
+    );
+
+}
+
+
+function dbGetAll(){
+
+    return new Promise(
+        (resolve,reject)=>{
+
+            const tx =
+                db.transaction(
+                    STORE_NAME,
+                    "readonly"
+                );
+
+            const request =
+                tx.objectStore(
+                    STORE_NAME
+                ).getAll();
+
+            request.onsuccess =
+                () => {
+
+                    resolve(
+                        request.result
+                    );
+
+                };
+
+            request.onerror =
+                () => {
+
+                    reject(
+                        request.error
+                    );
+
+                };
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+async function requestPersistentStorage(){
+
+    try{
+
+        if(
+            navigator.storage &&
+            navigator.storage.persist
+        ){
+
+            const already =
+                await navigator.storage.persisted();
+
+            if(!already){
+
+                await navigator.storage.persist();
+
+            }
+
+        }
+
+    }catch(error){
+
+        console.warn(
+            "Persistent storage unavailable",
+            error
+        );
+
+    }
+
+}
+
+
+async function getStorageInfo(){
+
+    try{
+
+        if(
+            navigator.storage &&
+            navigator.storage.estimate
+        ){
+
+            return await
+                navigator.storage.estimate();
+
+        }
+
+    }catch(error){
+
+        console.warn(error);
+
+    }
+
+    return {
+        usage:0,
+        quota:0
+    };
+
+}
+
+
+async function storageEnoughFor(size){
+
+    const info =
+        await getStorageInfo();
+
+    if(!info.quota){
+
+        return true;
+
+    }
+
+    const free =
+        info.quota -
+        info.usage;
+
+    /*
+     * Margin 10 MB.
+     */
+
+    return (
+        size +
+        10 * 1024 * 1024
+        <
+        free
+    );
+
+}
+
+
+/* =========================================================
+   CLOCK GUARD
+========================================================= */
+
+const CLOCK_KEY =
+    "chronovault_clock_guard_v1";
+
+let clockState = {
+
+    lastWallClock:
+        Date.now(),
+
+    maxObservedWallClock:
+        Date.now(),
+
+    rollbackDetected:
+        false
+
+};
+
+
+function loadClockState(){
+
+    try{
+
+        const raw =
+            localStorage.getItem(
+                CLOCK_KEY
+            );
+
+        if(raw){
+
+            const parsed =
+                JSON.parse(raw);
+
+            if(parsed){
+
+                clockState = {
+                    ...clockState,
+                    ...parsed
+                };
+
+            }
+
+        }
+
+    }catch(error){
+
+        console.warn(error);
+
+    }
+
+}
+
+
+function saveClockState(){
+
+    try{
+
+        localStorage.setItem(
+            CLOCK_KEY,
+            JSON.stringify(
+                clockState
+            )
+        );
+
+    }catch(error){
+
+        console.warn(error);
+
+    }
+
+}
+
+
+function getTrustedNow(){
+
+    const now =
+        Date.now();
+
+
+    if(
+        now <
+        clockState
+            .maxObservedWallClock
+        - 1500
+    ){
+
+        clockState
+            .rollbackDetected =
+            true;
+
+    }
+
+
+    if(
+        now >
+        clockState
+            .maxObservedWallClock
+    ){
+
+        clockState
+            .maxObservedWallClock =
+            now;
+
+    }
+
+
+    clockState.lastWallClock =
+        now;
+
+    saveClockState();
+
+
+    if(
+        clockState.rollbackDetected
+    ){
+
+        return (
+            clockState
+                .maxObservedWallClock
+        );
+
+    }
+
+
+    return now;
+
+}
+
+
+/* =========================================================
+   FILE TYPE
+========================================================= */
+
+function getFileType(file){
+
+    const name =
+        file.name.toLowerCase();
+
+
+    if(
+        file.type ===
+            "application/zip" ||
+
+        file.type ===
+            "application/x-zip-compressed" ||
+
+        name.endsWith(".zip")
+    ){
+
+        return "zip";
+
+    }
+
+
+    if(
+        file.type &&
+        file.type.startsWith("video/")
+    ){
+
+        return "video";
+
+    }
+
+
+    const extensions = [
+
+        ".mp4",
+        ".webm",
+        ".mov",
+        ".m4v",
+        ".avi",
+        ".mkv"
+
+    ];
+
+
+    if(
+        extensions.some(
+            ext =>
+                name.endsWith(ext)
+        )
+    ){
+
+        return "video";
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   UPLOAD
+========================================================= */
+
+let droppedFile = null;
+
+
+function openUpload(){
+
+    resetUploadForm();
+
+    $("#uploadOverlay")
+        .classList.add("show");
+
+}
+
+
+function closeUpload(){
+
+    $("#uploadOverlay")
+        .classList.remove("show");
+
+}
+
+
+function resetUploadForm(){
+
+    droppedFile =
+        null;
+
+    $("#videoFile").value =
+        "";
+
+    $("#fileTitle").value =
+        "";
+
+    $("#fileDescription").value =
+        "";
+
+
+    const future =
+        new Date(
+            Date.now() +
+            60 * 60 * 1000
+        );
+
+    future.setSeconds(0,0);
+
+
+    $("#unlockAt").value =
+        toLocalInputValue(
+            future
+        );
+
+
+    $("#selectedFile")
+        .classList.remove("show");
+
+    $("#selectedFile")
+        .textContent =
+        "";
+
+}
+
+
+const uploadZone =
+    $("#uploadZone");
+
+const fileInput =
+    $("#videoFile");
+
+
+uploadZone.addEventListener(
+    "click",
+    () => {
+
+        fileInput.click();
+
+    }
+);
+
+
+fileInput.addEventListener(
+    "change",
+    () => {
+
+        if(
+            fileInput.files[0]
+        ){
+
+            setSelectedFile(
+                fileInput.files[0]
+            );
+
+        }
+
+    }
+);
+
+
+uploadZone.addEventListener(
+    "dragover",
+    event => {
+
+        event.preventDefault();
+
+        uploadZone.classList.add(
+            "drag"
+        );
+
+    }
+);
+
+
+uploadZone.addEventListener(
+    "dragleave",
+    () => {
+
+        uploadZone.classList.remove(
+            "drag"
+        );
+
+    }
+);
+
+
+uploadZone.addEventListener(
+    "drop",
+    event => {
+
+        event.preventDefault();
+
+        uploadZone.classList.remove(
+            "drag"
+        );
+
+        const file =
+            event
+                .dataTransfer
+                .files[0];
+
+        if(file){
+
+            setSelectedFile(file);
+
+        }
+
+    }
+);
+
+
+function setSelectedFile(file){
+
+    const type =
+        getFileType(file);
+
+
+    if(!type){
+
+        showToast(
+            "File tidak didukung",
+            "Gunakan file video atau ZIP."
+        );
+
+        return;
+
+    }
+
+
+    droppedFile =
+        file;
+
+
+    $("#selectedFile")
+        .classList.add("show");
+
+
+    $("#selectedFile")
+        .innerHTML = `
+
+            <strong>
+                ${
+                    type === "video"
+                    ? "🎬"
+                    : "📦"
+                }
+
+                ${escapeHTML(file.name)}
+            </strong>
+
+            <br>
+
+            <span>
+                ${formatBytes(file.size)}
+                •
+                ${type.toUpperCase()}
+            </span>
+
+        `;
+
+}
+
+
+/* =========================================================
+   SAVE NEW FILE
+========================================================= */
+
+function getSelectedFile(){
+
+    if(droppedFile){
+
+        return droppedFile;
+
+    }
+
+    if(fileInput.files[0]){
+
+        return fileInput.files[0];
+
+    }
+
+    return null;
+
+}
+
+
+async function saveFile(){
+
+    const button =
+        $("#saveButton");
+
+    const file =
+        getSelectedFile();
+
+
+    if(!file){
+
+        showToast(
+            "File belum dipilih",
+            "Pilih video atau ZIP."
+        );
+
+        return;
+
+    }
+
+
+    const type =
+        getFileType(file);
+
+
+    if(!type){
+
+        showToast(
+            "Format tidak valid",
+            "Hanya video dan ZIP."
+        );
+
+        return;
+
+    }
+
+
+    const title =
+        $("#fileTitle")
+            .value
+            .trim();
+
+
+    const description =
+        $("#fileDescription")
+            .value
+            .trim();
+
+
+    const unlockValue =
+        $("#unlockAt").value;
+
+
+    if(!title){
+
+        showToast(
+            "Judul diperlukan",
+            "Masukkan judul file."
+        );
+
+        return;
+
+    }
+
+
+    if(!unlockValue){
+
+        showToast(
+            "Waktu belum diatur",
+            "Masukkan tanggal dan jam."
+        );
+
+        return;
+
+    }
+
+
+    const unlockAt =
+        new Date(
+            unlockValue
+        ).getTime();
+
+
+    if(
+        !Number.isFinite(unlockAt)
+    ){
+
+        showToast(
+            "Waktu tidak valid",
+            "Tanggal tidak valid."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        unlockAt <=
+        getTrustedNow()
+    ){
+
+        showToast(
+            "Waktu tidak valid",
+            "Waktu buka harus berada di masa depan."
+        );
+
+        return;
+
+    }
+
+
+    button.disabled =
+        true;
+
+    button.textContent =
+        "Menyimpan...";
+
+
+    try{
+
+        const enough =
+            await storageEnoughFor(
+                file.size
+            );
+
+
+        if(!enough){
+
+            throw new Error(
+                "Storage browser tidak mencukupi."
+            );
+
+        }
+
+
+        const record = {
+
+            id:
+                crypto.randomUUID(),
+
+            title,
+
+            description,
+
+            type,
+
+            fileName:
+                file.name,
+
+            mime:
+                file.type ||
+                (
+                    type === "zip"
+                    ? "application/zip"
+                    : "video/mp4"
+                ),
+
+            size:
+                file.size,
+
+            createdAt:
+                Date.now(),
+
+            unlockAt,
+
+            blob:
+                file
+
+        };
+
+
+        await dbPut(record);
+
+
+        showToast(
+            "Berhasil disimpan",
+            "File masuk ke Vault."
+        );
+
+
+        closeUpload();
+
+        await refreshLibrary();
+
+        broadcastChange();
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            "Gagal menyimpan",
+            error.message ||
+            "Browser gagal menyimpan file."
+        );
+
+    }finally{
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            "Simpan ke Vault";
+
+    }
+
+}
+
+
+/* =========================================================
+   EDIT
+========================================================= */
+
+function openEdit(id){
+
+    const file =
+        filesCache.find(
+            item =>
+                item.id === id
+        );
+
+
+    if(!file){
+
+        showToast(
+            "File tidak ditemukan",
+            "Data file tidak tersedia."
+        );
+
+        return;
+
+    }
+
+
+    editingId =
+        id;
+
+
+    $("#editFileName").value =
+        file.fileName;
+
+
+    $("#editTitle").value =
+        file.title;
+
+
+    $("#editDescription").value =
+        file.description || "";
+
+
+    $("#editUnlockAt").value =
+        toLocalInputValue(
+            new Date(
+                file.unlockAt
+            )
+        );
+
+
+    $("#editOverlay")
+        .classList.add("show");
+
+}
+
+
+function closeEdit(){
+
+    editingId =
+        null;
+
+    $("#editOverlay")
+        .classList.remove("show");
+
+}
+
+
+async function saveEdit(){
+
+    if(!editingId){
+
+        return;
+
+    }
+
+
+    const file =
+        filesCache.find(
+            item =>
+                item.id ===
+                editingId
+        );
+
+
+    if(!file){
+
+        showToast(
+            "File tidak ditemukan",
+            "Tidak dapat mengedit file."
+        );
+
+        return;
+
+    }
+
+
+    const title =
+        $("#editTitle")
+            .value
+            .trim();
+
+
+    const description =
+        $("#editDescription")
+            .value
+            .trim();
+
+
+    const unlockValue =
+        $("#editUnlockAt")
+            .value;
+
+
+    if(!title){
+
+        showToast(
+            "Judul kosong",
+            "Judul tidak boleh kosong."
+        );
+
+        return;
+
+    }
+
+
+    if(!unlockValue){
+
+        showToast(
+            "Tanggal kosong",
+            "Tentukan tanggal dan jam."
+        );
+
+        return;
+
+    }
+
+
+    const unlockAt =
+        new Date(
+            unlockValue
+        ).getTime();
+
+
+    if(
+        !Number.isFinite(unlockAt)
+    ){
+
+        showToast(
+            "Tanggal tidak valid",
+            "Gunakan tanggal dan jam yang valid."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * File boleh diedit kembali selama waktunya
+     * masih belum lewat.
+     */
+
+    if(
+        unlockAt <=
+        getTrustedNow()
+    ){
+
+        showToast(
+            "Waktu tidak valid",
+            "Waktu buka harus berada di masa depan."
+        );
+
+        return;
+
+    }
+
+
+    const button =
+        $("#editSaveButton");
+
+
+    button.disabled =
+        true;
+
+    button.textContent =
+        "Menyimpan...";
+
+
+    try{
+
+        /*
+         * PENTING:
+         *
+         * blob TIDAK disentuh.
+         * Jadi video/ZIP asli tetap sama.
+         */
+
+        const updated = {
+
+            ...file,
+
+            title,
+
+            description,
+
+            unlockAt
+
+        };
+
+
+        await dbPut(
+            updated
+        );
+
+
+        showToast(
+            "Perubahan disimpan",
+            "Tanggal/jam dan informasi file berhasil diperbarui."
+        );
+
+
+        closeEdit();
+
+        await refreshLibrary();
+
+        broadcastChange();
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            "Gagal mengedit",
+            "Perubahan tidak berhasil disimpan."
+        );
+
+    }finally{
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            "Simpan Perubahan";
+
+    }
+
+}
+
+
+/* =========================================================
+   LIBRARY
+========================================================= */
+
+async function refreshLibrary(){
+
+    filesCache =
+        await dbGetAll();
+
+    renderLibrary();
+
+    await updateStats();
+
+}
+
+
+function getFilteredFiles(){
+
+    const search =
+        $("#searchInput")
+            .value
+            .trim()
+            .toLowerCase();
+
+
+    const type =
+        $("#typeFilter")
+            .value;
+
+
+    const sort =
+        $("#sortSelect")
+            .value;
+
+
+    let result =
+        filesCache.filter(
+            file => {
+
+                const matchesSearch =
+                    !search ||
+
+                    String(
+                        file.title || ""
+                    )
+                    .toLowerCase()
+                    .includes(search) ||
+
+                    String(
+                        file.fileName || ""
+                    )
+                    .toLowerCase()
+                    .includes(search) ||
+
+                    String(
+                        file.description || ""
+                    )
+                    .toLowerCase()
+                    .includes(search);
+
+
+                const matchesType =
+                    type === "all" ||
+                    file.type === type;
+
+
+                return (
+                    matchesSearch &&
+                    matchesType
+                );
+
+            }
+        );
+
+
+    result.sort(
+        (a,b) => {
+
+            if(sort === "newest"){
+
+                return (
+                    b.createdAt -
+                    a.createdAt
+                );
+
+            }
+
+
+            if(sort === "oldest"){
+
+                return (
+                    a.createdAt -
+                    b.createdAt
+                );
+
+            }
+
+
+            if(sort === "unlock"){
+
+                return (
+                    a.unlockAt -
+                    b.unlockAt
+                );
+
+            }
+
+
+            if(sort === "name"){
+
+                return String(
+                    a.title || ""
+                ).localeCompare(
+                    String(
+                        b.title || ""
+                    ),
+                    "id"
+                );
+
+            }
+
+
+            return 0;
+
+        }
+    );
+
+
+    return result;
+
+}
+
+
+function renderLibrary(){
+
+    const grid =
+        $("#fileGrid");
+
+
+    const files =
+        getFilteredFiles();
+
+
+    if(!files.length){
+
+        grid.innerHTML = `
+
+            <div class="empty">
+
+                <div class="empty-icon">
+                    📭
+                </div>
+
+                <div class="empty-title">
+                    Tidak ada file
+                </div>
+
+                <div class="empty-sub">
+                    Upload video atau ZIP pertama kamu.
+                </div>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    grid.innerHTML =
+        files
+            .map(
+                file =>
+                    createCard(file)
+            )
+            .join("");
+
+
+    updateAllCountdowns();
+
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+function createCard(file){
+
+    const isVideo =
+        file.type === "video";
+
+
+    return `
+
+        <article
+            class="file-card"
+            data-id="${escapeHTML(file.id)}">
+
+            <div class="file-top">
+
+                <div
+                    class="type-icon ${
+                        isVideo
+                        ? ""
+                        : "zip"
+                    }">
+
+                    ${
+                        isVideo
+                        ? "🎬"
+                        : "📦"
+                    }
+
+                </div>
+
+                <div
+                    class="badge ${
+                        isVideo
+                        ? ""
+                        : "zip"
+                    }">
+
+                    ${
+                        isVideo
+                        ? "VIDEO"
+                        : "ZIP"
+                    }
+
+                </div>
+
+            </div>
+
+
+            <div class="file-body">
+
+                <div class="file-title">
+                    ${escapeHTML(file.title)}
+                </div>
+
+
+                <div class="file-description">
+
+                    ${
+                        escapeHTML(
+                            file.description ||
+                            "Tidak ada deskripsi."
+                        )
+                    }
+
+                </div>
+
+
+                <div class="meta">
+
+                    <div class="meta-row">
+
+                        <span>
+                            Nama
+                        </span>
+
+                        <strong>
+                            ${escapeHTML(file.fileName)}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="meta-row">
+
+                        <span>
+                            Ukuran
+                        </span>
+
+                        <strong>
+                            ${formatBytes(file.size)}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="meta-row">
+
+                        <span>
+                            Buka
+                        </span>
+
+                        <strong>
+                            ${formatDate(file.unlockAt)}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="countdown"
+                    id="countdown-${escapeHTML(file.id)}">
+
+                </div>
+
+            </div>
+
+
+            <div class="card-actions">
+
+                <button
+                    class="card-btn primary"
+                    onclick="openFile('${escapeHTML(file.id)}')">
+
+                    ${
+                        isVideo
+                        ? "▶ Buka Video"
+                        : "📦 Buka ZIP"
+                    }
+
+                </button>
+
+
+                <button
+                    class="card-btn edit"
+                    onclick="openEdit('${escapeHTML(file.id)}')">
+
+                    ✏️ Edit
+
+                </button>
+
+
+                <button
+                    class="card-btn danger full"
+                    onclick="deleteFile('${escapeHTML(file.id)}')">
+
+                    🗑️ Hapus
+
+                </button>
+
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+/* =========================================================
+   COUNTDOWN
+========================================================= */
+
+function updateCountdown(file){
+
+    const box =
+        document.getElementById(
+            "countdown-" +
+            file.id
+        );
+
+
+    if(!box){
+
+        return;
+
+    }
+
+
+    const remaining =
+        file.unlockAt -
+        getTrustedNow();
+
+
+    if(
+        remaining <= 0
+    ){
+
+        box.classList.add(
+            "ready"
+        );
+
+
+        box.innerHTML = `
+
+            <div class="countdown-label">
+                Status
+            </div>
+
+            <div class="countdown-time">
+                🔓 TERBUKA
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    box.classList.remove(
+        "ready"
+    );
+
+
+    box.innerHTML = `
+
+        <div class="countdown-label">
+            Terbuka dalam
+        </div>
+
+        <div class="countdown-time">
+            ${formatDuration(remaining)}
+        </div>
+
+    `;
+
+}
+
+
+function updateAllCountdowns(){
+
+    filesCache.forEach(
+        file =>
+            updateCountdown(file)
+    );
+
+}
+
+
+/* =========================================================
+   OPEN FILE
+========================================================= */
+
+async function openFile(id){
+
+    const file =
+        filesCache.find(
+            item =>
+                item.id === id
+        );
+
+
+    if(!file){
+
+        showToast(
+            "File tidak ditemukan",
+            "Data file sudah tidak tersedia."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        getTrustedNow() <
+        file.unlockAt
+    ){
+
+        showToast(
+            "🔒 Masih terkunci",
+            `File baru bisa dibuka ${formatDate(file.unlockAt)}.`
+        );
+
+        return;
+
+    }
+
+
+    $("#viewerTitle")
+        .textContent =
+        file.title;
+
+
+    if(
+        file.type === "video"
+    ){
+
+        await openVideo(
+            file
+        );
+
+    }else{
+
+        openZip(
+            file
+        );
+
+    }
+
+
+    $("#viewerOverlay")
+        .classList.add("show");
+
+}
+
+
+/* =========================================================
+   VIDEO VIEWER
+========================================================= */
+
+async function openVideo(file){
+
+    closeExistingObjectUrl(
+        file.id
+    );
+
+
+    const url =
+        URL.createObjectURL(
+            file.blob
+        );
+
+
+    objectUrls.set(
+        file.id,
+        url
+    );
+
+
+    $("#viewerBody")
+        .innerHTML = `
+
+            <div class="video-wrap">
+
+                <video
+                    id="viewerVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                    src="${url}">
+                </video>
+
+            </div>
+
+
+            <div class="viewer-actions">
+
+                <button
+                    class="viewer-action"
+                    onclick="downloadStoredFile('${escapeHTML(file.id)}')">
+
+                    ⬇ Download Video
+
+                </button>
+
+            </div>
+
+        `;
+
+}
+
+
+/* =========================================================
+   ZIP VIEWER
+========================================================= */
+
+function openZip(file){
+
+    closeExistingObjectUrl(
+        file.id
+    );
+
+
+    const url =
+        URL.createObjectURL(
+            file.blob
+        );
+
+
+    objectUrls.set(
+        file.id,
+        url
+    );
+
+
+    $("#viewerBody")
+        .innerHTML = `
+
+            <div class="zip-view">
+
+                <div class="zip-big">
+                    📦
+                </div>
+
+                <div class="zip-name">
+                    ${escapeHTML(file.fileName)}
+                </div>
+
+                <div class="zip-info">
+                    ${formatBytes(file.size)}
+                    • ZIP Archive
+                </div>
+
+
+                <a
+                    class="download-btn"
+                    href="${url}"
+                    download="${escapeHTML(file.fileName)}">
+
+                    ⬇ Download ZIP
+
+                </a>
+
+            </div>
+
+        `;
+
+}
+
+
+/* =========================================================
+   DOWNLOAD STORED FILE
+========================================================= */
+
+async function downloadStoredFile(id){
+
+    const file =
+        filesCache.find(
+            item =>
+                item.id === id
+        );
+
+
+    if(!file){
+
+        showToast(
+            "File tidak ditemukan",
+            "Data file tidak tersedia."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        getTrustedNow() <
+        file.unlockAt
+    ){
+
+        showToast(
+            "🔒 Masih terkunci",
+            "Download baru tersedia setelah waktunya tiba."
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        const url =
+            URL.createObjectURL(
+                file.blob
+            );
+
+
+        const anchor =
+            document.createElement("a");
+
+
+        anchor.href =
+            url;
+
+
+        anchor.download =
+            file.fileName;
+
+
+        anchor.style.display =
+            "none";
+
+
+        document.body.appendChild(
+            anchor
+        );
+
+
+        anchor.click();
+
+
+        anchor.remove();
+
+
+        setTimeout(
+            () => {
+
+                URL.revokeObjectURL(
+                    url
+                );
+
+            },
+            3000
+        );
+
+
+        showToast(
+            "Download dimulai",
+            file.fileName
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            "Download gagal",
+            "Browser gagal membuat download."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CLOSE VIEWER
+========================================================= */
+
+function closeViewer(){
+
+    $("#viewerOverlay")
+        .classList.remove("show");
+
+
+    $("#viewerBody")
+        .innerHTML =
+        "";
+
+
+    for(
+        const url
+        of objectUrls.values()
+    ){
+
+        try{
+
+            URL.revokeObjectURL(
+                url
+            );
+
+        }catch(error){}
+
+    }
+
+
+    objectUrls.clear();
+
+}
+
+
+function closeExistingObjectUrl(id){
+
+    if(
+        objectUrls.has(id)
+    ){
+
+        try{
+
+            URL.revokeObjectURL(
+                objectUrls.get(id)
+            );
+
+        }catch(error){}
+
+
+        objectUrls.delete(id);
+
+    }
+
+}
+
+
+/* =========================================================
+   DELETE
+========================================================= */
+
+async function deleteFile(id){
+
+    const file =
+        filesCache.find(
+            item =>
+                item.id === id
+        );
+
+
+    if(!file){
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            `Hapus "${file.title}"?\n\nFile akan dihapus permanen dari Vault browser ini.`
+        );
+
+
+    if(!confirmed){
+
+        return;
+
+    }
+
+
+    try{
+
+        closeExistingObjectUrl(id);
+
+        await dbDelete(id);
+
+        showToast(
+            "File dihapus",
+            file.title
+        );
+
+        await refreshLibrary();
+
+        broadcastChange();
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            "Gagal menghapus",
+            "Browser gagal menghapus file."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+async function updateStats(){
+
+    const total =
+        filesCache.length;
+
+
+    const video =
+        filesCache.filter(
+            file =>
+                file.type === "video"
+        ).length;
+
+
+    const zip =
+        filesCache.filter(
+            file =>
+                file.type === "zip"
+        ).length;
+
+
+    const totalSize =
+        filesCache.reduce(
+            (sum,file) =>
+                sum +
+                Number(file.size || 0),
+            0
+        );
+
+
+    $("#statTotal")
+        .textContent =
+        total;
+
+
+    $("#statVideo")
+        .textContent =
+        video;
+
+
+    $("#statZip")
+        .textContent =
+        zip;
+
+
+    $("#statStorage")
+        .textContent =
+        formatBytes(totalSize);
+
+}
+
+
+/* =========================================================
+   BACKUP
+========================================================= */
+
+/*
+ * Backup menggunakan format:
+ *
+ * .chronovault
+ *
+ * Isinya JSON + Blob file dalam Base64.
+ *
+ * Ini membuat backup dapat dipindahkan
+ * dan direstore kembali.
+ */
+
+function blobToBase64(blob){
+
+    return new Promise(
+        (resolve,reject)=>{
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                () => {
+
+                    const result =
+                        String(
+                            reader.result
+                        );
+
+
+                    const comma =
+                        result.indexOf(",");
+
+
+                    resolve(
+                        result.slice(
+                            comma + 1
+                        )
+                    );
+
+                };
+
+
+            reader.onerror =
+                () => {
+
+                    reject(
+                        reader.error
+                    );
+
+                };
+
+
+            reader.readAsDataURL(
+                blob
+            );
+
+        }
+    );
+
+}
+
+
+function base64ToBlob(
+    base64,
+    mime
+){
+
+    const binary =
+        atob(base64);
+
+
+    const length =
+        binary.length;
+
+
+    const bytes =
+        new Uint8Array(
+            length
+        );
+
+
+    for(
+        let i = 0;
+        i < length;
+        i++
+    ){
+
+        bytes[i] =
+            binary.charCodeAt(i);
+
+    }
+
+
+    return new Blob(
+        [bytes],
+        {
+            type:
+                mime ||
+                "application/octet-stream"
+        }
+    );
+
+}
+
+
+async function createBackup(){
+
+    const button =
+        $("#backupButton");
+
+
+    if(!filesCache.length){
+
+        showToast(
+            "Vault kosong",
+            "Tidak ada file yang dapat dibackup."
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            "Backup akan membaca isi semua video dan ZIP lalu membuat satu file backup.\n\nUntuk file besar, proses ini dapat menggunakan RAM cukup banyak. Lanjutkan?"
+        );
+
+
+    if(!confirmed){
+
+        return;
+
+    }
+
+
+    button.disabled =
+        true;
+
+    button.textContent =
+        "⏳ Membuat backup...";
+
+
+    try{
+
+        const backupFiles =
+            [];
+
+
+        for(
+            let i = 0;
+            i < filesCache.length;
+            i++
+        ){
+
+            const file =
+                filesCache[i];
+
+
+            button.textContent =
+                `⏳ Backup ${i + 1}/${filesCache.length}`;
+
+
+            const base64 =
+                await blobToBase64(
+                    file.blob
+                );
+
+
+            backupFiles.push({
+
+                id:
+                    file.id,
+
+                title:
+                    file.title,
+
+                description:
+                    file.description || "",
+
+                type:
+                    file.type,
+
+                fileName:
+                    file.fileName,
+
+                mime:
+                    file.mime,
+
+                size:
+                    file.size,
+
+                createdAt:
+                    file.createdAt,
+
+                unlockAt:
+                    file.unlockAt,
+
+                data:
+                    base64
+
+            });
+
+        }
+
+
+        const backup = {
+
+            format:
+                "CHRONOVAULT_BACKUP",
+
+            version:
+                1,
+
+            database:
+                DB_NAME,
+
+            createdAt:
+                Date.now(),
+
+            files:
+                backupFiles
+
+        };
+
+
+        const json =
+            JSON.stringify(
+                backup
+            );
+
+
+        const blob =
+            new Blob(
+                [json],
+                {
+                    type:
+                        "application/json"
+                }
+            );
+
+
+        const url =
+            URL.createObjectURL(
+                blob
+            );
+
+
+        const anchor =
+            document.createElement("a");
+
+
+        const date =
+            new Date();
+
+
+        const stamp =
+            date
+                .toISOString()
+                .replaceAll(":","-")
+                .replace(/\.\d{3}Z$/,"");
+
+
+        anchor.href =
+            url;
+
+
+        anchor.download =
+            `chronovault-backup-${stamp}.chronovault`;
+
+
+        document.body.appendChild(
+            anchor
+        );
+
+
+        anchor.click();
+
+
+        anchor.remove();
+
+
+        setTimeout(
+            () =>
+                URL.revokeObjectURL(url),
+            5000
+        );
+
+
+        showToast(
+            "Backup selesai",
+            `${filesCache.length} file berhasil dibackup.`
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            "Backup gagal",
+            error.message ||
+            "Browser gagal membuat backup."
+        );
+
+    }finally{
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            "💾 Buat Backup";
+
+    }
+
+}
+
+
+/* =========================================================
+   RESTORE
+========================================================= */
+
+$("#restoreInput")
+    .addEventListener(
+        "change",
+        async event => {
+
+            const file =
+                event.target.files[0];
+
+
+            if(!file){
+
+                return;
+
+            }
+
+
+            await restoreBackup(
+                file
+            );
+
+
+            event.target.value =
+                "";
+
+        }
+    );
+
+
+async function restoreBackup(
+    backupFile
+){
+
+    const confirmed =
+        confirm(
+            "Restore akan menggabungkan isi backup dengan Vault saat ini.\n\nFile yang ID-nya sama akan diperbarui.\n\nLanjutkan?"
+        );
+
+
+    if(!confirmed){
+
+        return;
+
+    }
+
+
+    try{
+
+        showToast(
+            "Membaca backup",
+            "Mohon tunggu..."
+        );
+
+
+        const text =
+            await backupFile.text();
+
+
+        const backup =
+            JSON.parse(
+                text
+            );
+
+
+        if(
+            !backup ||
+            backup.format !==
+                "CHRONOVAULT_BACKUP"
+        ){
+
+            throw new Error(
+                "File backup bukan backup ChronoVault yang valid."
+            );
+
+        }
+
+
+        if(
+            !Array.isArray(
+                backup.files
+            )
+        ){
+
+            throw new Error(
+                "Data file dalam backup tidak valid."
+            );
+
+        }
+
+
+        let restored =
+            0;
+
+
+        for(
+            let i = 0;
+            i < backup.files.length;
+            i++
+        ){
+
+            const item =
+                backup.files[i];
+
+
+            if(
+                !item ||
+                !item.id ||
+                !item.data ||
+                !item.fileName
+            ){
+
+                continue;
+
+            }
+
+
+            const blob =
+                base64ToBlob(
+                    item.data,
+                    item.mime
+                );
+
+
+            const record = {
+
+                id:
+                    item.id,
+
+                title:
+                    String(
+                        item.title ||
+                        item.fileName
+                    ),
+
+                description:
+                    String(
+                        item.description ||
+                        ""
+                    ),
+
+                type:
+                    item.type === "zip"
+                    ? "zip"
+                    : "video",
+
+                fileName:
+                    item.fileName,
+
+                mime:
+                    item.mime ||
+                    blob.type,
+
+                size:
+                    Number(
+                        item.size ||
+                        blob.size
+                    ),
+
+                createdAt:
+                    Number(
+                        item.createdAt ||
+                        Date.now()
+                    ),
+
+                unlockAt:
+                    Number(
+                        item.unlockAt ||
+                        Date.now()
+                    ),
+
+                blob
+
+            };
+
+
+            await dbPut(
+                record
+            );
+
+
+            restored++;
+
+        }
+
+
+        await refreshLibrary();
+
+        broadcastChange();
+
+
+        showToast(
+            "Restore selesai",
+            `${restored} file berhasil dipulihkan.`
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            "Restore gagal",
+            error.message ||
+            "File backup tidak dapat dipulihkan."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   BACKUP MODAL
+========================================================= */
+
+function openBackup(){
+
+    $("#backupOverlay")
+        .classList.add("show");
+
+}
+
+
+function closeBackup(){
+
+    $("#backupOverlay")
+        .classList.remove("show");
+
+}
+
+
+/* =========================================================
+   BROADCAST
+========================================================= */
+
+function broadcastChange(){
+
+    if(!channel){
+
+        return;
+
+    }
+
+
+    channel.postMessage({
+        type:"refresh"
+    });
+
+}
+
+
+if(channel){
+
+    channel.addEventListener(
+        "message",
+        async event => {
+
+            if(
+                event.data &&
+                event.data.type ===
+                    "refresh"
+            ){
+
+                await refreshLibrary();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+$("#searchInput")
+    .addEventListener(
+        "input",
+        renderLibrary
+    );
+
+
+$("#typeFilter")
+    .addEventListener(
+        "change",
+        renderLibrary
+    );
+
+
+$("#sortSelect")
+    .addEventListener(
+        "change",
+        renderLibrary
+    );
+
+
+/* =========================================================
+   MODAL CLICK
+========================================================= */
+
+$("#uploadOverlay")
+    .addEventListener(
+        "click",
+        event => {
+
+            if(
+                event.target ===
+                $("#uploadOverlay")
+            ){
+
+                closeUpload();
+
+            }
+
+        }
+    );
+
+
+$("#editOverlay")
+    .addEventListener(
+        "click",
+        event => {
+
+            if(
+                event.target ===
+                $("#editOverlay")
+            ){
+
+                closeEdit();
+
+            }
+
+        }
+    );
+
+
+$("#backupOverlay")
+    .addEventListener(
+        "click",
+        event => {
+
+            if(
+                event.target ===
+                $("#backupOverlay")
+            ){
+
+                closeBackup();
+
+            }
+
+        }
+    );
+
+
+$("#viewerOverlay")
+    .addEventListener(
+        "click",
+        event => {
+
+            if(
+                event.target ===
+                $("#viewerOverlay")
+            ){
+
+                closeViewer();
+
+            }
+
+        }
+    );
+
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if(
+            event.key ===
+            "Escape"
+        ){
+
+            closeUpload();
+            closeEdit();
+            closeBackup();
+            closeViewer();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   LIFECYCLE
+========================================================= */
+
+async function handleLifecycle(){
+
+    loadClockState();
+
+    getTrustedNow();
+
+    await refreshLibrary();
+
+}
+
+
+window.addEventListener(
+    "pageshow",
+    handleLifecycle
+);
+
+
+window.addEventListener(
+    "focus",
+    async () => {
+
+        getTrustedNow();
+
+        await refreshLibrary();
+
+    }
+);
+
+
+document.addEventListener(
+    "visibilitychange",
+    async () => {
+
+        if(
+            document.visibilityState ===
+            "visible"
+        ){
+
+            getTrustedNow();
+
+            await refreshLibrary();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CLOCK
+========================================================= */
+
+setInterval(
+    () => {
+
+        getTrustedNow();
+
+        updateAllCountdowns();
+
+    },
+    1000
+);
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+
+(async function init(){
+
+    try{
+
+        loadClockState();
+
+        await openDB();
+
+        await requestPersistentStorage();
+
+        await refreshLibrary();
+
+        getTrustedNow();
+
+        updateAllCountdowns();
+
+
+        console.log(
+            "ChronoVault ready."
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+        document.getElementById(
+            "fileGrid"
+        ).innerHTML = `
+
+            <div class="empty">
+
+                <div class="empty-icon">
+                    ⚠️
+                </div>
+
+                <div class="empty-title">
+                    Database tidak dapat dibuka
+                </div>
+
+                <div class="empty-sub">
+                    Browser tidak mengizinkan IndexedDB.
+                </div>
+
+            </div>
+
+        `;
+
+        showToast(
+            "Database error",
+            "IndexedDB tidak dapat dibuka."
+        );
+
+    }
+
+})();
+
+</script>
+
+</body>
+  </html>
